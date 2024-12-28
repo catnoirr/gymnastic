@@ -8,7 +8,7 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <body>
-        {path !== "/dashboard" && <header><Header /></header>}
+        {path !== "/dashboard" && path !== "/diet" && path !== "/adddiet" && <header><Header /></header>}
         <main>{children}</main>
       </body>
     </html>
