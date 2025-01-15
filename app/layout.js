@@ -1,6 +1,6 @@
 "use client";
 import { usePathname } from "next/navigation";
-import './globals.css';
+import "./globals.css";
 import Header from "@/components/navbar";
 
 export default function RootLayout({ children }) {
@@ -8,10 +8,13 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <body>
-        {path !== "/dashboard" && path !== "/diet" && path !== "/adddiet" && <header><Header /></header>}
-        <main>{children}</main>
+        {/* {path !== "/dashboard" && path !== "/diet" && path !== "/adddiet" && (
+          <header>
+            <Header />
+          </header>
+        )} */}
+        <main className="">{children}</main>
       </body>
     </html>
   );
 }
-

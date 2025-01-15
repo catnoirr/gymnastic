@@ -1,7 +1,8 @@
 import Hero from "@/components/hero";
 import Features from "@/components/features";
 import HowItWillHelp from "@/components/HowsItWork";
-import TrackProgress from "@/components/trackprogress";
+import About from "@/components/about";
+
 
 export default function App() {
   return (
@@ -10,6 +11,7 @@ export default function App() {
       <Hero />
       <Features />
       <HowItWillHelp />
+      <About/>
     </div>
   );
 }

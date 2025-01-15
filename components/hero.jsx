@@ -1,41 +1,45 @@
-import React from 'react'
+import React from "react";
 
-import { Poppins } from 'next/font/google'
-
-// Load the Google font
-const poppins = Poppins({
-  subsets: ['latin'],
-  weight: ['400', '700'],
-})
-export default function hero() {
+const FitnessAI = () => {
   return (
-    <div className="bg-gymie-primary">
-  <div className="flex flex-col md:flex-row items-center justify-between w-full py-10 md:py-0  px-6 md:px-12  bg-custom-gray bg-gymie-secondary  rounded-t-3xl md:min-h-screen">
-    <div className="md:w-1/2 text-center md:text-left">
-      <h1 className={`text-3xl md:text-6xl font-semibold animate-fade-up text-gray-900 mb-4 font ${poppins.className}`}>
-        UNLEASH YOUR POWER WITH GYMIEE
-      </h1>
-      <p className="text-gray-700 text-lg mb-6 animate-fade-up">
-        Transform your body and mind with customized fitness plans.
-      </p>
-      <button className="bg-black text-white px-6 py-3 rounded-lg font-semibold hover:bg-gray-800 transition duration-200 animate-fade-left">
-        JOIN NOW
-      </button>
+    <div className="relative min-h-screen bg-black text-white flex items-center justify-center overflow-hidden">
+      {/* Background Image */}
+      <div
+        className="absolute inset-0 bg-cover bg-center opacity-60 "
+        style={{
+          backgroundImage: `url('/f2.jpg')`, // Replace with your image URL
+        }}
+      ></div>
+
+      {/* Content Overlay */}
+      <div className="relative z-10  top-40  text-center p-6 flex flex-col items-center">
+        <h1 className="text-7xl md:text-8xl font-bold mb-6 leading-tight font-poppins">
+          Fitness Meet Gymiee.
+        </h1>
+        <p className="text-lg md:text-xl max-w-4xl text-center mb-8">
+          Achieve your fitness goals with gymiee where calories track made easy, workout plans, habiits, reminders and many more...
+        </p>
+        {/* <button className="bg-orange-500 text-white px-6 py-3 rounded-lg text-lg font-semibold shadow-lg hover:bg-orange-600 transition">
+          Get Started
+        </button> */}
+      </div>
+
+      {/* Metric Data */}
+      
+
+      {/* Navigation */}
+      <div className="absolute top-6 left-6">
+        <button className="bg-gray-700 text-white px-6 py-4 md:rounded-xl rounded-full shadow hover:bg-gray-600 transition">
+          Contact Us
+        </button>
+      </div>
+      <div className="absolute top-6 right-6">
+        <button className="bg-gray-700 text-white text-bold  px-6 py-4 md:rounded-xl rounded-full shadow hover:bg-gray-600 transition">
+          Main Menu
+        </button>
+      </div>
     </div>
-    <div className="mt-8 md:mt-0 md:w-1/2 flex items-center justify-center relative">
-  {/* Vibrant Black Ring */}
-  <div className="absolute w-72 h-72 md:w-[70%] md:h-[80%] rounded-full bg-gradient-to-r from-black via-gray-800 to-black shadow-lg shadow-black/50 animate-fade-up  animate-ease-in-out animate-once"></div>
+  );
+};
 
-  {/* Image */}
-  <img
-    src="/hero.png"
-    alt="Gymiee Promotion"
-    className="relative  w-[70%] object-cover animate-fade-down"
-  />
-</div>
-
-  </div>
-</div>
-
-  )
-}
+export default FitnessAI;
