@@ -10,8 +10,16 @@ export default {
       colors: {
         background: "var(--background)",
         foreground: "var(--foreground)",
+       'gymie-secondary': 'rgba(207, 205, 205, 0.3)', 
+       'gymie-primary': '#F5F5F5',
+       'gymie-tertiary': 'rgba(217, 217, 217, 0.4)',
       },
+      fontFamily:{
+        poppins: ['Poppins']
+      }
     },
   },
-  plugins: [],
+  plugins: [
+    require('tailwindcss-animated')
+  ],
 };

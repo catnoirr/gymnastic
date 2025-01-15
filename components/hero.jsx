@@ -1,40 +1,41 @@
-export default function Hero() {
-    return (
-      <header className="relative bg-gradient-to-r from-orange-100 to-pink-50 overflow-hidden h-screen ">
-        <div className="container mx-auto px-6 py-16 text-center lg:text-left lg:flex lg:items-center">
-          <div className="lg:w-1/2 animate-fade-in">
-            <h2 className="text-4xl font-extrabold text-gray-800 leading-tight">
-              Welcome to <span className="text-orange-500">Gymnastic</span>
-            </h2>
-            <p className="mt-4 text-gray-600">
-              A platform to achieve your fitness goals effortlessly. Join us to
-              transform your health and well-being with personalized plans and
-              tracking features.
-            </p>
-            <div className="mt-6 space-x-4">
-              <a
-                href="/signup"
-                className="bg-orange-500 text-white px-6 py-3 rounded-lg shadow-lg hover:bg-orange-600 hover:scale-105 transition-all duration-300"
-              >
-                Get Started
-              </a>
-              <a
-                href="#features"
-                className="bg-gray-200 text-gray-700 px-6 py-3 rounded-lg shadow-lg hover:bg-gray-300 hover:shadow-xl transition-all duration-300"
-              >
-                Learn More
-              </a>
-            </div>
-          </div>
-          <div className="mt-8 lg:mt-0 lg:w-1/2">
-            <img
-              src="/illus.png"
-              alt="Hero"
-              className="w-full transform hover:scale-110 transition-transform duration-500"
-            />
-          </div>
-        </div>
-      </header>
-    );
-  }
-  
+import React from 'react'
+
+import { Poppins } from 'next/font/google'
+
+// Load the Google font
+const poppins = Poppins({
+  subsets: ['latin'],
+  weight: ['400', '700'],
+})
+export default function hero() {
+  return (
+    <div className="bg-gray-50 flex">
+  <div className="flex flex-col md:flex-row items-center justify-between w-full py-10 md:py-0  px-6 md:px-12  bg-custom-gray bg-gymie-secondary shadow-md ">
+    <div className="md:w-1/2 text-center md:text-left">
+      <h1 className={`text-3xl md:text-6xl font-semibold animate-fade-up text-gray-900 mb-4 font ${poppins.className}`}>
+        UNLEASH YOUR POWER WITH GYMIEE
+      </h1>
+      <p className="text-gray-700 text-lg mb-6 animate-fade-up">
+        Transform your body and mind with customized fitness plans.
+      </p>
+      <button className="bg-black text-white px-6 py-3 rounded-lg font-semibold hover:bg-gray-800 transition duration-200 animate-fade-left">
+        JOIN NOW
+      </button>
+    </div>
+    <div className="mt-8 md:mt-0 md:w-1/2 flex items-center justify-center relative">
+  {/* Vibrant Black Ring */}
+  <div className="absolute w-72 h-72 md:w-[70%] md:h-[80%] rounded-full bg-gradient-to-r from-black via-gray-800 to-black shadow-lg shadow-black/50 animate-fade-up  animate-ease-in-out animate-once"></div>
+
+  {/* Image */}
+  <img
+    src="/hero.png"
+    alt="Gymiee Promotion"
+    className="relative  w-[70%] object-cover animate-fade-down"
+  />
+</div>
+
+  </div>
+</div>
+
+  )
+}
