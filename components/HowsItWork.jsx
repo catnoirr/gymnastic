@@ -9,18 +9,18 @@ const poppins = Poppins({
 
 export default function Hero() {
   return (
-    <div className="p-6 ">
-      <div className="flex flex-col items-center justify-center w-full py-10 md:py-0 px-6 md:px-12 bg-custom-gray bg-[#D9D9D9] shadow-md rounded-3xl">
-        <h1 className="text-3xl md:text-4xl font-semibold pt-6 text-center">
+    <div className="sm:p-6 ">
+      <div className="flex flex-col items-center justify-center w-full sm:py-10 md:py-0 sm:px-6 md:px-12 bg-custom-gray sm:bg-[#D9D9D9] sm:shadow-md rounded-3xl b ">
+        <h1 className="text-6xl md:text-4xl font-semibold pt-6 text-center">
           How's It Work
         </h1>
         <div className="flex flex-col md:flex-row items-center justify-between w-full mt-6 md:mt-0">
-          <div className="md:w-1/2 p-6 md:p-16 bg-white rounded-3xl">
-            <h1 className="text-2xl font-bold text-center md:text-left">
+          <div className="md:w-1/2 sm:p-6 py-6 px-4 md:p-16 bg-white rounded-3xl">
+            <h1 className="sm:text-2xl text-xl font-bold text-center md:text-left">
               Gymiee: Fitness Journey Simplified
             </h1>
             <p className="text-gray-700 text-lg mb-6 animate-fade-up text-center md:text-left">
-              Transform your body and mind with customized fitness plans.
+              Transform your body and mind .
             </p>
             <div className="space-y-4">
               <div>
@@ -52,12 +52,12 @@ export default function Hero() {
               </div>
             </div>
           </div>
-          <div className="mt-8 md:mt-0 md:w-1/2 flex items-center justify-center relative">
-            {/* Image */}
+          <div className="mt-8 md:mt-0 md:w-1/2 flex items-center justify-center relative ">
+          
             <img
               src="/h1.png"
               alt="Gymiee Promotion"
-              className="relative w-full md:w-[70%] object-cover animate-fade-down"
+              className="relative w-full md:w-[70%] object-cover animate-fade-down "
             />
           </div>
         </div>

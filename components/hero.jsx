@@ -9,8 +9,8 @@ const poppins = Poppins({
 })
 export default function hero() {
   return (
-    <div className="bg-gray-50 flex">
-  <div className="flex flex-col md:flex-row items-center justify-between w-full py-10 md:py-0  px-6 md:px-12  bg-custom-gray bg-gymie-secondary shadow-md ">
+    <div className="bg-gymie-primary">
+  <div className="flex flex-col md:flex-row items-center justify-between w-full py-10 md:py-0  px-6 md:px-12  bg-custom-gray bg-gymie-secondary  rounded-t-3xl md:min-h-screen">
     <div className="md:w-1/2 text-center md:text-left">
       <h1 className={`text-3xl md:text-6xl font-semibold animate-fade-up text-gray-900 mb-4 font ${poppins.className}`}>
         UNLEASH YOUR POWER WITH GYMIEE
