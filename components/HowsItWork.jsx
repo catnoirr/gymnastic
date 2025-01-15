@@ -12,12 +12,12 @@ export default function Hero() {
     <div className="relative sm:p-6">
       {/* Background Image */}
       <div
-        className="absolute inset-0 bg-cover bg-center opacity-90"
+        className="absolute inset-0 bg-cover bg-center  "
         style={{ backgroundImage: 'url(/w.jpg)' }} // Replace with your image path
       ></div>
 
       {/* Overlay for better readability */}
-      <div className="absolute inset-0 bg-black opacity-10"></div>
+      <div className="absolute inset-0 bg-black opacity-10  "></div>
 
       {/* Content */}
       <div className="relative z-10 flex flex-col items-center justify-center w-full   md:px-48    rounded-3xl pt-96 pb-7">

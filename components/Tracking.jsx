@@ -7,8 +7,8 @@ export default function CalorisCard() {
     <div className="relative  rounded-3xl overflow-hidden p-6 px-8 border">
       {/* Background Image */}
       <div
-        className="absolute inset-0 bg-cover bg-center opacity-40"
-        style={{ backgroundImage: 'url(/w1.jpg)' }}
+        className="absolute inset-0 bg-cover bg-center opacity-40 animate-shake animate-infinite"
+        style={{ backgroundImage: 'url(/p.jpg)' }}
       ></div>
 
       {/* Overlay for better contrast */}

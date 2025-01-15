@@ -12,8 +12,8 @@ export default function Hero() {
     <div className="relative sm:p-6 bg-black min-h-screen">
       {/* Background Image */}
       <div
-        className="absolute inset-0 bg-cover bg-center opacity-60"
-        style={{ backgroundImage: "url(/a.jpg)" }} // Replace with your image path
+        className="absolute inset-0 bg-cover bg-center   "
+        style={{ backgroundImage: "url(/aw.png)" }} // Replace with your image path
       ></div>
 
       {/* Overlay for better readability */}

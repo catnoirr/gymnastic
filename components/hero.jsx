@@ -5,15 +5,15 @@ const FitnessAI = () => {
     <div className="relative min-h-screen bg-black text-white flex items-center justify-center overflow-hidden">
       {/* Background Image */}
       <div
-        className="absolute inset-0 bg-cover bg-center opacity-60 "
+        className="absolute inset-0 bg-cover bg-center  mt-4   "
         style={{
-          backgroundImage: `url('/f2.jpg')`, // Replace with your image URL
+          backgroundImage: `url('/w1.jpg')`, // Replace with your image URL
         }}
       ></div>
 
       {/* Content Overlay */}
       <div className="relative z-10  top-40  text-center p-6 flex flex-col items-center">
-        <h1 className="text-7xl md:text-8xl font-bold mb-6 leading-tight font-poppins">
+        <h1 className="text-7xl md:text-8xl font-bold mb-6 leading-tight font-poppins ">
           Fitness Meet Gymiee.
         </h1>
         <p className="text-lg md:text-xl max-w-4xl text-center mb-8">

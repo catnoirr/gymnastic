@@ -6,7 +6,7 @@ export default function CalorisCard() {
     <div className="relative  rounded-3xl overflow-hidden p-6 px-8 border">
       {/* Background Image */}
       <div
-        className="absolute inset-0 bg-cover bg-center opacity-40"
+        className="absolute inset-0 bg-cover bg-center opacity-40 animate-fade-up  animate-infinite "
         style={{ backgroundImage: 'url(/food.jpg)' }}
       ></div>
 
