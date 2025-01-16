@@ -1,21 +1,26 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import Login  from '@/app/login/page'
 
 const FitnessAI = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [activeForm, setActiveForm] = useState("menu"); // 'menu', 'login', 'signup'
+  const [isLoginFormOpen, setIsLoginFormOpen] = useState(false); // Controls Login Form view
+  const [isSignupFormOpen, setIsSignupFormOpen] = useState(false); // Controls Login Form view
 
-  // Open modal and reset to the main menu
+  // Open modal and reset to main menu
   const openModal = () => {
     setIsModalOpen(true);
-    setActiveForm("menu");
+    setIsLoginFormOpen(false); // Reset to main menu
+    setIsSignupFormOpen(false);
+
   };
 
-  // Close modal and reset form view
+  // Close modal and reset views
   const closeModal = () => {
     setIsModalOpen(false);
-    setActiveForm("menu");
+    setIsLoginFormOpen(false);
+    setIsSignupFormOpen(false);
   };
 
   // Disable scrolling when modal is open
@@ -40,8 +45,7 @@ const FitnessAI = () => {
           Fitness Meet Gymiee.
         </h1>
         <p className="text-lg md:text-xl max-w-4xl text-center mb-8">
-          Achieve your fitness goals with Gymiee where calorie tracking is made
-          easy, workout plans, habits, reminders, and more...
+          Achieve your fitness goals with Gymiee where calorie tracking is made easy, workout plans, habits, reminders, and more...
         </p>
       </div>
 
@@ -70,9 +74,9 @@ const FitnessAI = () => {
               exit={{ y: "100%" }}
               transition={{ type: "spring", stiffness: 300, damping: 30 }}
               drag="y"
-              dragConstraints={{ top: 0, bottom: 500 }}
+              dragConstraints={{ top: 0, bottom: 300 }}
               onDragEnd={(event, info) => {
-                if (info.point.y > 500) {
+                if (info.point.y > 100) {
                   closeModal(); // Close when dragged down
                 }
               }}
@@ -82,37 +86,29 @@ const FitnessAI = () => {
                 <div className="w-12 h-2 bg-gray-400 rounded-3xl"></div>
               </div>
 
-              {/* Dynamic Content Rendering */}
-              {activeForm === "menu" && (
+              {/* Conditional Rendering */}
+              {!isLoginFormOpen ? (
+                // Main Menu
                 <div>
-                  <h2 className="text-4xl font-semibold text-black text-center">
-                    @gymiee
-                  </h2>
+                  <h2 className="text-4xl font-semibold text-black text-center">@gymiee</h2>
                   <p
                     className="mt-4 text-center text-xl text-black py-2 px-10 rounded-full bg-[#C2FFC7] cursor-pointer"
-                    onClick={() => setActiveForm("login")} // Open Login Form
+                    onClick={() => setIsLoginFormOpen(true)} // Open Login Form
                   >
-                    Existing user -- Login
-                  </p>
-                  <p
-                    className="mt-4 text-center text-xl text-black py-2 px-10 rounded-full bg-[#C2FFC7] cursor-pointer"
-                    onClick={() => setActiveForm("signup")} // Open Sign Up Form
-                  >
-                    New user -- Sign Up
+                    Login & Register
                   </p>
                   <p className="mt-4 text-center text-xl text-black py-2 px-10 rounded-full bg-[#C2FFC7]">
                     What Gymiee Serves
                   </p>
                 </div>
-              )}
-
-              {activeForm === "login" && (
+              )  : (
+                // Login Form
                 <div>
-                  <h2 className="text-3xl font-semibold text-black text-center">
+                  {/* <h2 className="text-3xl font-semibold text-black text-center">
                     Login to Gymiee
-                  </h2>
-                  <form className="mt-6 flex flex-col gap-4">
-                    <input
+                  </h2> */}
+                  <div className="mt-6 flex flex-col gap-4">
+                    {/* <input
                       type="email"
                       placeholder="Email"
                       className="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
@@ -129,56 +125,16 @@ const FitnessAI = () => {
                       className="w-full bg-orange-500 text-white py-3 rounded-lg hover:bg-orange-600 transition"
                     >
                       Login
-                    </button>
-                    <button
+                    </button> */}
+                    <Login/>
+                    {/* <button
                       type="button"
-                      onClick={() => setActiveForm("menu")} // Back to Main Menu
+                      onClick={() => setIsLoginFormOpen(false)} // Back to Main Menu
                       className="w-full bg-gray-300 text-black py-3 rounded-lg hover:bg-gray-400 transition"
                     >
                       Back
-                    </button>
-                  </form>
-                </div>
-              )}
-
-              {activeForm === "signup" && (
-                <div>
-                  <h2 className="text-3xl font-semibold text-black text-center">
-                    Create Your Gymiee Account
-                  </h2>
-                  <form className="mt-6 flex flex-col gap-4">
-                    <input
-                      type="text"
-                      placeholder="Full Name"
-                      className="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
-                      required
-                    />
-                    <input
-                      type="email"
-                      placeholder="Email"
-                      className="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
-                      required
-                    />
-                    <input
-                      type="password"
-                      placeholder="Password"
-                      className="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
-                      required
-                    />
-                    <button
-                      type="submit"
-                      className="w-full bg-green-500 text-white py-3 rounded-lg hover:bg-green-600 transition"
-                    >
-                      Sign Up
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setActiveForm("menu")} // Back to Main Menu
-                      className="w-full bg-gray-300 text-black py-3 rounded-lg hover:bg-gray-400 transition"
-                    >
-                      Back
-                    </button>
-                  </form>
+                    </button> */}
+                  </div>
                 </div>
               )}
             </motion.div>

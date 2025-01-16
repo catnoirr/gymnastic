@@ -35,10 +35,10 @@ export default function FancyLoginPanel() {
   };
 
   return (
-    <div className="flex justify-center items-center min-h-screen bg-pink-50 p-4">
-      <div className="flex flex-col md:flex-row items-center bg-white rounded-lg shadow-lg max-w-4xl w-full">
+    <div className="flex justify-center items-center">
+      <div className="flex flex-col md:flex-row  bg-white rounded-lg   w-full ">
         {/* Left Illustration Section */}
-        <div className="flex-shrink-0 bg-pink-100 rounded-t-lg md:rounded-l-lg md:rounded-tr-none w-full md:w-1/2  md:flex justify-center items-center h-[600px] hidden">
+        <div className="flex-shrink-0 bg-pink-100 rounded-t-lg md:rounded-l-lg md:rounded-tr-none w-full md:w-1/2   justify-center items-center h-[600px] hidden">
           <img
             src="/illus.jpg" // Replace with your illustration URL
             alt="Illustration"
@@ -47,7 +47,7 @@ export default function FancyLoginPanel() {
         </div>
 
         {/* Right Login Form Section */}
-        <div className="w-full md:w-1/2 p-8">
+        <div className="w-full ">
           <h2 className="text-3xl font-bold text-gray-800 text-center">Login</h2>
           <form className="mt-6 space-y-6" onSubmit={handleLogin}>
             {/* Email Field */}
@@ -63,7 +63,7 @@ export default function FancyLoginPanel() {
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="Email"
                   required
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-orange-500 focus:border-orange-500"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-full shadow-sm focus:outline-none focus:ring-orange-500 focus:border-orange-500"
                 />
               </div>
             </div>
@@ -80,7 +80,7 @@ export default function FancyLoginPanel() {
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="Password"
                   required
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-orange-500 focus:border-orange-500"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-full shadow-sm focus:outline-none focus:ring-orange-500 focus:border-orange-500"
                 />
                 {/* Error Message */}
                 {error && <p className="text-red-500 text-center">{error}</p>}
@@ -95,7 +95,7 @@ export default function FancyLoginPanel() {
             {/* Submit Button */}
             <button
               type="submit"
-              className="w-full bg-orange-500 text-white py-3 rounded-lg font-medium hover:bg-orange-600 transition duration-300"
+              className="w-full bg-orange-500 text-white py-3 rounded-full font-medium hover:bg-orange-600 transition duration-300"
               disabled={loading}
             >
               {loading ? 'Logging in...' : 'Log In'}
