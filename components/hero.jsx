@@ -1,15 +1,33 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { PageOne } from "@/app/login/page";
+import { useRouter } from "next/navigation";
+import { toast } from "react-hot-toast"
 
 const FitnessAI = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [activeForm, setActiveForm] = useState("menu"); // 'menu', 'login', 'signup'
-
+  const router = useRouter();
   // Open modal and reset to the main menu
   const openModal = () => {
     setIsModalOpen(true);
     setActiveForm("menu");
+  };
+
+  const handleAuthClick = (authType) => {
+    if (authType === "login") {
+      toast("Login to Gymiee",{
+        duration:1500,
+      });
+      
+      router.push("/login"); // Redirect to Login page
+    } else if (authType === "signup") {
+      toast("Register at Gymiee",{
+        duration:1500,
+      });
+      router.push("/signup"); // Redirect to Sign Up page
+    }
   };
 
   // Close modal and reset form view
@@ -89,16 +107,28 @@ const FitnessAI = () => {
                     @gymiee
                   </h2>
                   <p
-                    className="mt-4 text-center text-xl text-black py-2 px-10 rounded-full bg-[#C2FFC7] cursor-pointer"
+                    className="mt-4 text-center text-xl text-black py-2 px-10 rounded-full bg-[#C2FFC7] cursor-pointer md:hidden "
                     onClick={() => setActiveForm("login")} // Open Login Form
                   >
                     Existing user -- Login
                   </p>
                   <p
-                    className="mt-4 text-center text-xl text-black py-2 px-10 rounded-full bg-[#C2FFC7] cursor-pointer"
+                    className="mt-4 text-center text-xl text-black py-2 px-10 rounded-full bg-[#C2FFC7] cursor-pointer hidden md:block"
+                    onClick={() =>  handleAuthClick("login")} // Open Login Form
+                  >
+                    Login
+                  </p>
+                  <p
+                    className="mt-4 text-center text-xl text-black py-2 px-10 rounded-full bg-[#C2FFC7] cursor-pointer md:hidden"
                     onClick={() => setActiveForm("signup")} // Open Sign Up Form
                   >
                     New user -- Sign Up
+                  </p>
+                  <p
+                    className="mt-4 text-center text-xl text-black py-2 px-10 rounded-full bg-[#C2FFC7] cursor-pointer hidden md:block"
+                    onClick={() =>  handleAuthClick("signup")} // Open Sign Up Form
+                  >
+                    Sign Up
                   </p>
                   <p className="mt-4 text-center text-xl text-black py-2 px-10 rounded-full bg-[#C2FFC7]">
                     What Gymiee Serves
@@ -108,36 +138,7 @@ const FitnessAI = () => {
 
               {activeForm === "login" && (
                 <div>
-                  <h2 className="text-3xl font-semibold text-black text-center">
-                    Login to Gymiee
-                  </h2>
-                  <form className="mt-6 flex flex-col gap-4">
-                    <input
-                      type="email"
-                      placeholder="Email"
-                      className="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
-                      required
-                    />
-                    <input
-                      type="password"
-                      placeholder="Password"
-                      className="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
-                      required
-                    />
-                    <button
-                      type="submit"
-                      className="w-full bg-orange-500 text-white py-3 rounded-lg hover:bg-orange-600 transition"
-                    >
-                      Login
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setActiveForm("menu")} // Back to Main Menu
-                      className="w-full bg-gray-300 text-black py-3 rounded-lg hover:bg-gray-400 transition"
-                    >
-                      Back
-                    </button>
-                  </form>
+                  <PageOne setActiveForm={setActiveForm} />
                 </div>
               )}
 

@@ -24,7 +24,7 @@ export default function Hero() {
         <h1 className="text-6xl md:text-4xl text-white font-semibold pt-6 text-center">
           How's It Work
         </h1>
-        <v className=" flex flex-col-reverse md:flex-row items-center justify-between w-full mt-6 md:mt-0 p-6 ">
+        <div className=" flex flex-col-reverse md:flex-row items-center justify-between w-full mt-6 md:mt-0 p-6 ">
         <div className=" w-full flex sm:p-6 py-6 px-4 md:p-16 bg-white/20 backdrop-blur-md border border-white/30 rounded-3xl shadow-lg">
         <div className="lg:w-[50%]">
   <h1 className="sm:text-2xl text-xl font-bold text-center md:text-left text-white">
@@ -64,7 +64,7 @@ export default function Hero() {
 
 
           
-        </v>
+        </div>
       </div>
     </div>
   );
