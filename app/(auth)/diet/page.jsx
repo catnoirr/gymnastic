@@ -1,38 +1,22 @@
-"use client";
-import AddDiet from "./components/adddiet";
-import Meal from "./components/MealLogic";
+import React from 'react'
+import Hero from './components/hero'
+import DietCard from './components/DietCard'
 
-export default function Navbar() {
 
-  
-
+export default function page() {
   return (
-    <div className="max-w-7xl mx-auto bg-gradient-to-r from-orange-100 to-pink-50 rounded-3xl p-8" >
-    <nav className="bg-white shadow-md sticky top-0 z-50 rounded-3xl">
-      <div className="container mx-auto px-6 py-4 flex justify-between items-center">
-        {/* Logo */}
-        < h1 className="text-2xl font-bold text-orange-500 hover:scale-105 transition-transform duration-300 cursor-pointer ">
-          Diet
-        </h1>
-
-        
-
-      
-
-        {/* Login Button */}
-        <button
-         
-          className="hidden lg:block bg-orange-500 text-white px-4 py-2 rounded-lg shadow-lg hover:bg-orange-600 hover:shadow-xl transition-all duration-300"
-          onClick={() => router.push('/adddiet')}
-        >
-          Add Diet
-        </button>
-      </div>
+    <div className='md:bg-[#F7F5F1] rounded-3xl min-h-screen md:p-6 space-y-5'>
+      <Hero/>
+      <div className='grid sm:grid-cols-2 grid-cols-1 md:grid-cols-3 gap-4'>
+  <DietCard />
+  <DietCard />
+  <DietCard />
+  <DietCard />
+  <DietCard />
+  <DietCard />
+</div>
 
       
-    </nav>
-     <AddDiet />
-     <Meal/>
     </div>
-  );
+  )
 }

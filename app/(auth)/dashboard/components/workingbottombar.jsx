@@ -1,31 +1,22 @@
 "use client";
 import { useState } from "react";
-import {
-  FaHome,
-  FaFire,
-  FaChartBar,
-  FaDumbbell,
-  FaSignOutAlt
-} from "react-icons/fa";
+import { FaHome, FaFileAlt, FaChartBar, FaSlidersH , FaSignOutAlt, FaFire, FaDumbbell, FaUser} from "react-icons/fa";
 import { auth } from "@/lib/firebase";
 import { signOut } from "firebase/auth";
 import { useRouter } from "next/navigation";
 
 const BottomNavBar = () => {
   const [activeTab, setActiveTab] = useState("Home");
-  const router = useRouter();
+    const router = useRouter();
 
   const tabs = [
-    { name: "Home", icon: <FaHome size={20} />, route: "/home" },
-    { name: "Workout", icon: <FaFire size={20} />, route: "/workout" },
-    { name: "Focus", icon: <FaChartBar size={20} />, route: "/focus" },
-    { name: "Diet", icon: <FaDumbbell size={20} />, route: "/diet" },
+    { name: "Home", icon: <FaHome size={20} /> },
+    { name: "Workout", icon: <FaFire size={20} /> },
+    { name: "Foocus", icon: <FaChartBar size={20} /> },
+    { name: "Diet", icon: <FaDumbbell size={20} /> },
+    { name: "Profile", icon: <FaUser size={20} /> },
+   
   ];
-
-  const handleTabClick = (tab) => {
-    setActiveTab(tab.name);
-    router.push(tab.route);
-  };
 
   const handleSignOut = async () => {
     try {
@@ -41,7 +32,7 @@ const BottomNavBar = () => {
       {tabs.map((tab) => (
         <button
           key={tab.name}
-          onClick={() => handleTabClick(tab)}
+          onClick={() => setActiveTab(tab.name)}
           className={`flex items-center space-x-2 px-3 py-2 rounded-full transition-all duration-300 ${
             activeTab === tab.name
               ? "bg-white text-gray-800 shadow-lg"
@@ -62,13 +53,6 @@ const BottomNavBar = () => {
           )}
         </button>
       ))}
-      <button
-        onClick={handleSignOut}
-        className="flex items-center space-x-2 px-3 py-2 ml-4 bg-red-600 hover:bg-red-700 rounded-full transition-all duration-300"
-      >
-        <FaSignOutAlt size={20} />
-        {/* <span className="text-sm font-medium">Sign Out</span> */}
-      </button>
     </div>
   );
 };

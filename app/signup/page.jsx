@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 
 import { FaGoogle } from "react-icons/fa";
-export default function FancySignupPanel() {
+export default function FancySignupPanel({activeForm,setActiveForm}) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState(""); // Name state added
@@ -45,16 +45,11 @@ export default function FancySignupPanel() {
 
   return (
     <div
-      className="flex justify-center items-center min-h-screen p-4"
-      style={{
-        backgroundImage: "url(/p.jpg)", // Replace with the correct image path
-        backgroundSize: "cover",
-        backgroundPosition: "center",
-        backgroundRepeat: "no-repeat",
-      }}
+      className="flex md:justify-center   md:items-center  md:min-h-screen bg-image md:p-4"
+      
     >
-      <div className="flex justify-center items-center  ">
-        <div className="flex flex-col md:flex-row items-center  rounded-3xl shadow-lg max-w-5xl w-full  bg-white/20 backdrop-blur-md border border-white/30 ">
+      <div className="flex md:justify-center md:items-center  w-full  ">
+        <div className="flex flex-col md:flex-row items-center  rounded-3xl md:shadow-lg max-w-5xl w-full  md:bg-white/20 md:backdrop-blur-md md:border border-white/30 ">
           {/* Left Illustration Section */}
           <div className=" h-full   rounded-t-lg md:rounded-l-lg md:rounded-tr-none w-full md:w-1/2  md:flex hidden">
             <img
@@ -66,9 +61,9 @@ export default function FancySignupPanel() {
 
           {/* Right Signup Form Section */}
 
-          <div className="w-full md:w-1/2 p-8">
-            <h2 className="text-3xl font-bold text-white text-center">
-              Sign Up
+          <div className="w-full md:w-1/2 md:p-8">
+            <h2 className="text-3xl font-bold text-white md:text-center">
+              Sign Up at Gymiee
             </h2>
             <form className="mt-6 space-y-6" onSubmit={handleSubmit}>
               {/* Full Name Field */}
@@ -87,7 +82,7 @@ export default function FancySignupPanel() {
                     onChange={(e) => setName(e.target.value)}
                     placeholder="Full Name"
                     required
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-orange-500 focus:border-orange-500"
+                    className="w-full px-4 py-3 border border-gray-300 md:rounded-lg rounded-3xl shadow-sm focus:outline-none focus:ring-orange-500 focus:border-orange-500"
                   />
                 </div>
               </div>
@@ -107,7 +102,7 @@ export default function FancySignupPanel() {
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="Email"
                     required
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-orange-500 focus:border-orange-500"
+                    className="w-full px-4 py-3 border md:rounded-lg rounded-3xl border-gray-300 shadow-sm focus:outline-none focus:ring-orange-500 focus:border-orange-500"
                   />
                 </div>
               </div>
@@ -127,7 +122,7 @@ export default function FancySignupPanel() {
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="Password"
                     required
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-orange-500 focus:border-orange-500"
+                    className="w-full px-4 py-3 border border-gray-300 md:rounded-lg rounded-3xl shadow-sm focus:outline-none focus:ring-orange-500 focus:border-orange-500"
                   />
                 </div>
               </div>
@@ -136,7 +131,7 @@ export default function FancySignupPanel() {
               {/* Submit Button */}
               <button
                 type="submit"
-                className="w-full bg-orange-500 text-white py-3 rounded-lg font-medium hover:bg-orange-600 transition duration-300"
+                className="w-full bg-black text-white py-3 md:rounded-lg rounded-3xl font-medium hover:bg-orange-600 transition duration-300"
                 disabled={loading}
               >
                 {loading ? "Signing up..." : "Sign Up"}
@@ -150,26 +145,36 @@ export default function FancySignupPanel() {
             )}
             {error && <p>{error}</p>}
             {/* OR Continue With */}
-            <div className="mt-6 flex items-center justify-between">
+            {/* <div className="mt-6 flex items-center justify-between">
               <hr className="w-1/3 border-gray-300" />
               <span className="text-sm text-white">Or Sign Up With</span>
               <hr className="w-1/3 border-gray-300" />
-            </div>
+            </div> */}
             {/* Social Buttons */}
-            <div className="mt-4 flex justify-center space-x-4">
+            {/* <div className="mt-4 flex justify-center space-x-4">
               <button className="flex items-center justify-center w-10 h-10 bg-gray-100 rounded-full hover:bg-gray-200 transition duration-300">
                 <FaGoogle />
               </button>
-            </div>
+            </div> */}
             {/* Login Link */}
             <p className="mt-6 text-sm text-center text-white">
               Already have an account?{" "}
               <a
                 href="/login"
-                className="text-orange-500 font-medium hover:underline"
+                className="text-orange-500 font-medium hover:underline hidden md:block"
               >
                 Log In here
               </a>
+              <span
+                
+                className="text-orange-500 font-medium hover:underline md:hidden"
+                onClick={() => setActiveForm("login")}
+              >
+                Log In here
+              </span>
+              {/* <p  className="text-orange-500 font-medium hover:underline md:hidden" onClick={() => setActiveForm("login")}>
+                Login in here
+              </p> */}
             </p>
           </div>
         </div>
