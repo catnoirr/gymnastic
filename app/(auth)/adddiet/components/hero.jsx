@@ -9,7 +9,7 @@ export default function page() {
     <div className="flex ">
       <div className="flex justify-between  w-full md:pb-12 ">
         <div className="">
-          <h1 className="text-2xl md:text-4xl font-poppins font-semibold">Diet</h1>
+          <h1 className="text-3xl md:text-4xl font-poppins font-semibold">Add Diet</h1>
           <p className="text-sm">Fuel your body, not your cravings.</p>
         </div>
         <div className="hidden md:block">
@@ -17,7 +17,7 @@ export default function page() {
           <p className="text-center text-sm">20 Jan 2024</p>
         </div>
       <div>
-      <button onClick={() => router.push('/adddiet')} className="bg-black text-white px-8 py-2 rounded-full text-center">Add Diet</button>
+      <button onClick={() => router.push('/diet')} className="bg-black text-white px-8 py-2 rounded-full text-center">Back</button>
       </div>
         
       </div>

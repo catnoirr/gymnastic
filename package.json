@@ -9,6 +9,10 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@heroui/dropdown": "^2.3.10",
+    "@heroui/modal": "^2.2.8",
+    "@heroui/react": "^2.6.14",
+    "@radix-ui/react-popover": "^1.1.4",
     "aos": "^2.3.4",
     "chart.js": "^4.4.7",
     "firebase": "^11.1.0",

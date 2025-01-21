@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   FaHome,
   FaFire,
@@ -9,23 +9,35 @@ import {
 } from "react-icons/fa";
 import { auth } from "@/lib/firebase";
 import { signOut } from "firebase/auth";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 
 const BottomNavBar = () => {
-  const [activeTab, setActiveTab] = useState("Home");
+  const pathname = usePathname();
   const router = useRouter();
 
   const tabs = [
     { name: "Home", icon: <FaHome size={20} />, route: "/home" },
-    { name: "Workout", icon: <FaFire size={20} />, route: "/workout" },
-    { name: "Focus", icon: <FaChartBar size={20} />, route: "/focus" },
-    { name: "Diet", icon: <FaDumbbell size={20} />, route: "/diet" },
+    { name: "Diet", icon: <FaFire size={20} />, route: "/diet" },
+    { name: "Workout", icon: <FaDumbbell size={20} />, route: "/workout" },
+    { name: "Focus", icon: <FaChartBar size={20} />, route: "/foocus" },
   ];
+
+  const [activeTab, setActiveTab] = useState(() => {
+    const currentTab = tabs.find(tab => tab.route === pathname);
+    return currentTab ? currentTab.name : "Home";
+  });
 
   const handleTabClick = (tab) => {
     setActiveTab(tab.name);
     router.push(tab.route);
   };
+
+  useEffect(() => {
+    const currentTab = tabs.find(tab => tab.route === pathname);
+    if (currentTab) {
+      setActiveTab(currentTab.name);
+    }
+  }, [pathname]);
 
   const handleSignOut = async () => {
     try {

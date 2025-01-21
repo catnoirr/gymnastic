@@ -20,7 +20,7 @@ const Sidebar = () => {
 
   const tabs = [
     { id: "home", icon: <FaHome />, tooltip: "Home", route: "/home" },
-    { id: "calories", icon: <FaFire />, tooltip: "Calories", route: "/calories" },
+    { id: "calories", icon: <FaFire />, tooltip: "Calories", route: "/diet" },
     { id: "progress", icon: <FaChartBar />, tooltip: "Progress", route: "/progress" },
     { id: "workout", icon: <FaDumbbell />, tooltip: "Workout", route: "/workout" },
     { id: "timer", icon: <FaClock />, tooltip: "Timer", route: "/timer" },
