@@ -1,11 +1,9 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { auth } from "@/lib/firebase"; // Import Firebase Auth
-import { signInWithEmailAndPassword, onAuthStateChanged } from "firebase/auth"; // Import necessary Firebase functions
+import { signInWithEmailAndPassword } from "firebase/auth"; // Import necessary Firebase functions
 import { useRouter } from "next/navigation"; // Next.js routing
 import { FaGoogle } from "react-icons/fa";
-
-
 
 export default function FancyLoginPanel({ activeForm, setActiveForm }) {
   const [email, setEmail] = useState("");
@@ -14,25 +12,20 @@ export default function FancyLoginPanel({ activeForm, setActiveForm }) {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
-  // Redirect to Dashboard if user is already logged in
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      if (user) {
-        router.push("/diet"); // Redirect to Dashboard if user is authenticated
-      }
-    });
-    return () => unsubscribe(); // Cleanup when component unmounts
-  }, [router]);
-
-  // Handle Login Form Submit
   const handleLogin = async (e) => {
     e.preventDefault();
     setLoading(true);
     try {
-      await signInWithEmailAndPassword(auth, email, password);
-      router.push("/diet"); // Redirect to dashboard after successful login
+      const result = await signInWithEmailAndPassword(auth, email, password);
+      const token = await result.user.getIdToken();
+      
+      document.cookie = `token=${token}; path=/`;
+      router.push("/diet");
     } catch (err) {
+      console.error(err);
       setError("Invalid email or password");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -192,7 +185,7 @@ export default function FancyLoginPanel({ activeForm, setActiveForm }) {
           </div>
           {/* Sign Up Link */}
           <p className="mt-6 text-sm text-center text-white  md:block">
-            Don’t have an account?{" "}
+            Don't have an account?{" "}
             <a
               href="/signup"
               className="text-orange-500 font-medium hover:underline hidden md:block"

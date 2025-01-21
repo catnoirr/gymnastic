@@ -42,6 +42,8 @@ const BottomNavBar = () => {
   const handleSignOut = async () => {
     try {
       await signOut(auth);
+      // Remove the token cookie
+      document.cookie = "token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
       router.push("/");
     } catch (error) {
       console.error("Error signing out:", error);
