@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { toast } from "react-hot-toast";
+
 
 import { FaGoogle } from "react-icons/fa";
 export default function FancySignupPanel({activeForm,setActiveForm}) {
@@ -32,7 +34,13 @@ export default function FancySignupPanel({activeForm,setActiveForm}) {
 
       if (response.ok) {
         setSuccess(true);
-        router.push("/login");
+        toast.success("Signup successful Please Login..");
+        // Set activeForm to "login" after successful signup
+        if (setActiveForm) {
+          setActiveForm("login");
+        } else {
+          router.push("/login");
+        }
       } else {
         setError(data.error || "Something went wrong!");
       }
@@ -137,25 +145,8 @@ export default function FancySignupPanel({activeForm,setActiveForm}) {
                 {loading ? "Signing up..." : "Sign Up"}
               </button>
             </form>
-            {success && (
-              <p>
-                Signup successful! Please check your email to verify your
-                account.
-              </p>
-            )}
-            {error && <p>{error}</p>}
-            {/* OR Continue With */}
-            {/* <div className="mt-6 flex items-center justify-between">
-              <hr className="w-1/3 border-gray-300" />
-              <span className="text-sm text-white">Or Sign Up With</span>
-              <hr className="w-1/3 border-gray-300" />
-            </div> */}
-            {/* Social Buttons */}
-            {/* <div className="mt-4 flex justify-center space-x-4">
-              <button className="flex items-center justify-center w-10 h-10 bg-gray-100 rounded-full hover:bg-gray-200 transition duration-300">
-                <FaGoogle />
-              </button>
-            </div> */}
+            
+           
             {/* Login Link */}
             <p className="mt-6 text-sm text-center text-white">
               Already have an account?{" "}
