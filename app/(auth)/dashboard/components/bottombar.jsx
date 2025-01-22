@@ -4,7 +4,8 @@ import {
   FaSun,
   FaFire,
   FaWalking,
-  FaSignOutAlt
+  FaSignOutAlt,
+  FaClock
 } from "react-icons/fa";
 import { auth } from "@/lib/firebase";
 import { signOut } from "firebase/auth";

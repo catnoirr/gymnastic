@@ -2,6 +2,7 @@
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import BottomDrawer from "../../workout/components/BottomDrawer";
+import AddReminder from "../../reminders/components/add";
 
 export default function page() {
   const [isOpen, setIsOpen] = useState(false);
@@ -24,14 +25,14 @@ export default function page() {
             onClick={() => setIsOpen(true)}
             className="bg-black text-white px-8 py-2 rounded-full text-center"
           >
-            Add Reminder
+            Reminder
           </button>
         </div>
       </div>
       <BottomDrawer isOpen={isOpen} onClose={() => setIsOpen(false)}>
-        <div className="flex flex-col gap-4">
-          <h1 className="text-2xl font-poppins font-semibold">Add Reminder</h1>
-          <p className="text-sm">Add a reminder to focus on your goals.</p>
+        <div className="w-full h-full flex justify-center items-center">
+        <AddReminder />
+
         </div>
       </BottomDrawer>
     </div>
