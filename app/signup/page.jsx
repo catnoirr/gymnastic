@@ -2,8 +2,6 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { setCookie } from '@/lib/cookies';
-
 
 import { FaGoogle } from "react-icons/fa";
 export default function FancySignupPanel({activeForm,setActiveForm}) {
@@ -14,7 +12,6 @@ export default function FancySignupPanel({activeForm,setActiveForm}) {
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(false);
   const router = useRouter();
-  
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -35,9 +32,7 @@ export default function FancySignupPanel({activeForm,setActiveForm}) {
 
       if (response.ok) {
         setSuccess(true);
-        const token = await result.user.getIdToken();
-        setCookie('token', token); // Set cookie without expiration
-        router.push("/foocus");
+        router.push("/dashboard");
       } else {
         setError(data.error || "Something went wrong!");
       }
