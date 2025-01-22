@@ -9,6 +9,7 @@ import {
 import { auth } from "@/lib/firebase";
 import { signOut } from "firebase/auth";
 import { useRouter, usePathname } from "next/navigation";
+import { deleteCookie } from '@/lib/cookies';
 
 const BottomNavBar = () => {
   const pathname = usePathname();
@@ -41,8 +42,7 @@ const BottomNavBar = () => {
   const handleSignOut = async () => {
     try {
       await signOut(auth);
-      // Remove the token cookie
-      document.cookie = "token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+      deleteCookie('token');
       router.push("/");
     } catch (error) {
       console.error("Error signing out:", error);

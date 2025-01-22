@@ -12,7 +12,9 @@ export const config = {
     '/workout/:path*',
     '/adddiet/:path*',
     '/addworkout/:path*',
-    '/foocus/:path*'
+    '/foocus/:path*',
+    '/today-workout/:path*',
+    '/reminder/:path*'
   ]
 };
 
@@ -26,7 +28,7 @@ export async function middleware(request) {
 
   // If user is authenticated and trying to access public pages, redirect to diet
   if (token && isPublicPage) {
-    return NextResponse.redirect(new URL('/diet', request.url));
+    return NextResponse.redirect(new URL('/foocus', request.url));
   }
 
   // If user is not authenticated and trying to access protected pages, redirect to home

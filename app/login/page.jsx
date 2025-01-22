@@ -4,6 +4,7 @@ import { auth } from "@/lib/firebase"; // Import Firebase Auth
 import { signInWithEmailAndPassword } from "firebase/auth"; // Import necessary Firebase functions
 import { useRouter } from "next/navigation"; // Next.js routing
 import { FaGoogle } from "react-icons/fa";
+import { setCookie } from '@/lib/cookies';
 
 export default function FancyLoginPanel({ activeForm, setActiveForm }) {
   const [email, setEmail] = useState("");
@@ -19,8 +20,8 @@ export default function FancyLoginPanel({ activeForm, setActiveForm }) {
       const result = await signInWithEmailAndPassword(auth, email, password);
       const token = await result.user.getIdToken();
       
-      document.cookie = `token=${token}; path=/`;
-      router.push("/diet");
+      setCookie('token', token); // Set cookie without expiration
+      router.push("/foocus");
     } catch (err) {
       console.error(err);
       setError("Invalid email or password");
