@@ -32,7 +32,7 @@ export default function FancySignupPanel({activeForm,setActiveForm}) {
 
       if (response.ok) {
         setSuccess(true);
-        router.push("/dashboard");
+        router.push("/login");
       } else {
         setError(data.error || "Something went wrong!");
       }
