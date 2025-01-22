@@ -51,7 +51,7 @@ const BottomNavBar = () => {
   };
 
   return (
-    <div className="fixed bottom-4 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white rounded-full shadow-lg flex items-center px-4 py-2 md:space-x-4">
+    <div className="fixed bottom-4 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white rounded-full shadow-lg flex items-center px-4 py-2 md:space-x-4 z-50">
       {tabs.map((tab) => (
         <button
           key={tab.name}

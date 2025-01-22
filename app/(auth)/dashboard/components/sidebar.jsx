@@ -21,8 +21,18 @@ const Sidebar = () => {
   const tabs = [
     { id: "home", icon: <FaHome />, tooltip: "Home", route: "/home" },
     { id: "calories", icon: <FaFire />, tooltip: "Calories", route: "/diet" },
-    { id: "progress", icon: <FaChartBar />, tooltip: "Progress", route: "/progress" },
-    { id: "workout", icon: <FaDumbbell />, tooltip: "Workout", route: "/workout" },
+    {
+      id: "progress",
+      icon: <FaChartBar />,
+      tooltip: "Progress",
+      route: "/progress",
+    },
+    {
+      id: "workout",
+      icon: <FaDumbbell />,
+      tooltip: "Workout",
+      route: "/workout",
+    },
     { id: "timer", icon: <FaClock />, tooltip: "Timer", route: "/timer" },
   ];
 
@@ -53,7 +63,7 @@ const Sidebar = () => {
   };
 
   return (
-    <div className="md:flex fixed flex-col items-center min-h-screen w-20 pb-2 hidden ">
+    <div className="md:flex fixed flex-col items-center min-h-screen w-20 pb-2 hidden z-[999]">
       {/* Logo */}
       <div className="mb-6">
         <img src="/logo.png" alt="logo" className="w-16 h-16" />
@@ -74,8 +84,8 @@ const Sidebar = () => {
             >
               {tab.icon}
             </button>
-            {/* Tooltip */}
-            <span className="absolute left-14 top-1/2  transform -translate-y-1/2 bg-gray-800 text-white text-xs font-semibold px-3 py-1 rounded-3xl opacity-0 group-hover:opacity-100 transition duration-300 pointer-events-none whitespace-nowrap z-50">
+            {/* Navigation Tabs Tooltip */}
+            <span className="absolute left-14 top-1/2  transform -translate-y-1/2 bg-gray-800 text-white text-xs font-semibold px-3 py-1 rounded-3xl opacity-0 group-hover:opacity-100 transition duration-300 pointer-events-none whitespace-nowrap z-[999]">
               {tab.tooltip}
             </span>
           </div>
@@ -100,8 +110,8 @@ const Sidebar = () => {
             >
               {tab.icon}
             </button>
-            {/* Tooltip */}
-            <span className="absolute left-14 top-1/2 transform -translate-y-1/2 bg-gray-800 text-white text-xs font-semibold px-3 py-1 rounded opacity-0 group-hover:opacity-100 transition duration-300 pointer-events-none whitespace-nowrap z-50">
+            {/* Utility Tabs Tooltip */}
+            <span className="absolute left-14 top-1/2 transform -translate-y-1/2 bg-gray-800 text-white text-xs font-semibold px-3 py-1 rounded opacity-0 group-hover:opacity-100 transition duration-300 pointer-events-none whitespace-nowrap z-[999]">
               {tab.tooltip}
             </span>
           </div>
@@ -115,8 +125,8 @@ const Sidebar = () => {
           >
             <FaSignOutAlt />
           </button>
-          {/* Tooltip */}
-          <span className="absolute left-14 top-1/2 transform -translate-y-1/2 bg-gray-800 text-white text-xs font-semibold px-3 py-1 rounded opacity-0 group-hover:opacity-100 transition duration-300 pointer-events-none whitespace-nowrap">
+          {/* Logout Tooltip */}
+          <span className="absolute left-14 top-1/2 transform -translate-y-1/2 bg-gray-800 text-white text-xs font-semibold px-3 py-1 rounded opacity-0 group-hover:opacity-100 transition duration-300 pointer-events-none whitespace-nowrap z-[999]">
             Logout
           </span>
         </div>
