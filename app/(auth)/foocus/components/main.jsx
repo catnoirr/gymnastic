@@ -4,13 +4,15 @@ import Savings from './Savings'
 import Calories from './Calories'
 import Weight from './Weight'
 import Habits from './Habbits'
+import Calender from './Calender'
 
 export default function main() {
   return (
     <div className='flex flex-col   gap-4'>
-        <div className='flex flex-col md:flex-row gap-4'> 
+        <div className='flex flex-col md:flex-row gap-4 '> 
         <Reminder />
         <Savings />
+        <Calender />
         </div>
       <div className='flex flex-col md:flex-row gap-4'>
       <div className="w-full flex flex-col  gap-4">
