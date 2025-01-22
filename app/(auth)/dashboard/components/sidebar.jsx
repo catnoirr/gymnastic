@@ -1,6 +1,6 @@
 "use client";
-import React, { useState } from "react";
-import { useRouter } from "next/navigation";
+import React, { useState, useEffect } from "react";
+import { useRouter, usePathname } from "next/navigation";
 import {
   FaHome,
   FaFire,
@@ -10,22 +10,25 @@ import {
   FaBell,
   FaCog,
   FaSignOutAlt,
+  FaWalking,
+  FaSun,
 } from "react-icons/fa";
 import { auth } from "@/lib/firebase";
 import { signOut } from "firebase/auth";
 
 const Sidebar = () => {
-  const [activeTab, setActiveTab] = useState("home");
   const router = useRouter();
+  const pathname = usePathname();
 
+  // Move tabs and utilityTabs before useState
   const tabs = [
-    { id: "home", icon: <FaHome />, tooltip: "Home", route: "/home" },
-    { id: "calories", icon: <FaFire />, tooltip: "Calories", route: "/diet" },
+    { id: "home", icon: <FaSun />, tooltip: "Foocus", route: "/foocus" },
+    { id: "calories", icon: <FaFire />, tooltip: "Diet", route: "/diet" },
     {
       id: "progress",
-      icon: <FaChartBar />,
-      tooltip: "Progress",
-      route: "/progress",
+      icon: <FaWalking />,
+      tooltip: "Today's Workout",
+      route: "/today-workout",
     },
     {
       id: "workout",
@@ -33,7 +36,7 @@ const Sidebar = () => {
       tooltip: "Workout",
       route: "/workout",
     },
-    { id: "timer", icon: <FaClock />, tooltip: "Timer", route: "/timer" },
+    { id: "timer", icon: <FaClock />, tooltip: "Reminder", route: "/reminder" },
   ];
 
   const utilityTabs = [
@@ -50,6 +53,19 @@ const Sidebar = () => {
     //   route: "/settings",
     // },
   ];
+
+  const [activeTab, setActiveTab] = useState(() => {
+    const route = pathname;
+    const tab = tabs.find(t => t.route === route);
+    return tab ? tab.id : "home";
+  });
+
+  useEffect(() => {
+    const currentTab = [...tabs, ...utilityTabs].find(tab => tab.route === pathname);
+    if (currentTab) {
+      setActiveTab(currentTab.id);
+    }
+  }, [pathname]);
 
   const handleSignOut = async () => {
     try {

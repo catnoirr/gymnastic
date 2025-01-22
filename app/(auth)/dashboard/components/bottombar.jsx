@@ -1,10 +1,9 @@
 "use client";
 import { useState, useEffect } from "react";
 import {
-  FaHome,
+  FaSun,
   FaFire,
-  FaChartBar,
-  FaDumbbell,
+  FaWalking,
   FaSignOutAlt
 } from "react-icons/fa";
 import { auth } from "@/lib/firebase";
@@ -16,10 +15,10 @@ const BottomNavBar = () => {
   const router = useRouter();
 
   const tabs = [
-    { name: "Home", icon: <FaHome size={20} />, route: "/home" },
+    { name: "Foocus", icon: <FaSun size={20} />, route: "/foocus" },
     { name: "Diet", icon: <FaFire size={20} />, route: "/diet" },
-    { name: "Workout", icon: <FaDumbbell size={20} />, route: "/workout" },
-    { name: "Focus", icon: <FaChartBar size={20} />, route: "/foocus" },
+    { name: "Workout", icon: <FaWalking size={20} />, route: "/today-workout" },
+    { name: "Reminder", icon: <FaClock size={20} />, route: "/reminder" },
   ];
 
   const [activeTab, setActiveTab] = useState(() => {

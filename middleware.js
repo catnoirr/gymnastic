@@ -11,7 +11,8 @@ export const config = {
     '/diet/:path*',
     '/workout/:path*',
     '/adddiet/:path*',
-    '/addworkout/:path*'
+    '/addworkout/:path*',
+    '/foocus/:path*'
   ]
 };
 

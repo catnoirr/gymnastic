@@ -87,8 +87,10 @@ const Calendar = () => {
   }, [currentDate, daysInMonth, firstDay]);
 
   return (
-    <div className="calendar bg-gray-800 p-3 sm:p-4 rounded-3xl  
-    ">
+    <div
+      className="calendar bg-gray-800 p-3 sm:p-4 rounded-3xl   
+    "
+    >
       {/* Header */}
       <div className="calendar-header flex justify-between items-center mb-4">
         <button
