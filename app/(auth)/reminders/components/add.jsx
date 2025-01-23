@@ -96,16 +96,16 @@ export default function AddReminder() {
   }
 
   return (
-    <div className="w-full ">
-      <form onSubmit={handleSubmit} className="bg-white ">
-        <h2 className="text-xl font-medium text-gray-900 mb-6">Add Reminder</h2>
+    <div className="w-full">
+      <form onSubmit={handleSubmit} className="">
+        <h2 className="text-xl font-semibold text-indigo-950 mb-6">Add Reminder</h2>
         
         <div className="space-y-5">
           <div>
-            <label className="text-sm font-medium text-gray-700 block mb-3 ">Priority</label>
+            <label className="text-sm font-medium text-indigo-900 block mb-3">Priority</label>
             <div className="flex gap-3">
               {['A', 'B', 'C'].map((priority) => (
-                <div key={priority} className="flex-1 ">
+                <div key={priority} className="flex-1">
                   <input
                     type="radio"
                     name="priority"
@@ -117,10 +117,11 @@ export default function AddReminder() {
                   />
                   <label
                     htmlFor={`priority-${priority}`}
-                    className="flex items-center justify-center h-12 w-full rounded-full border 
-                             cursor-pointer transition-colors duration-200
-                             peer-checked:bg-gray-900 peer-checked:text-white peer-checked:border-gray-900
-                             border-gray-200 hover:border-gray-300 text-gray-600"
+                    className="flex items-center justify-center h-12 w-full rounded-full border-2
+                             cursor-pointer transition-all duration-200
+                             peer-checked:bg-indigo-600 peer-checked:text-white peer-checked:border-indigo-600
+                             border-indigo-100 hover:border-indigo-200 text-indigo-600
+                             hover:bg-indigo-50"
                   >
                     {priority}
                   </label>
@@ -130,51 +131,57 @@ export default function AddReminder() {
           </div>
 
           <div>
-            <label className="text-sm font-medium text-gray-700 block mb-2">Time</label>
+            <label className="text-sm font-medium text-indigo-900 block mb-2">Time</label>
             <input
               type="time"
               name="time"
               value={formData.time}
               onChange={handleChange}
-              className="w-full h-12 px-3 rounded-full border border-gray-200 
-                       focus:outline-none focus:border-gray-900 focus:ring-1 focus:ring-gray-900
-                       transition-colors duration-200"
+              className="w-full h-12 px-4 rounded-full border-2 border-indigo-100 
+                       focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500
+                       transition-all duration-200 hover:border-indigo-200
+                       text-indigo-600 bg-white"
             />
           </div>
 
           <div>
-            <label className="text-sm font-medium text-gray-700 block mb-2">Heading</label>
+            <label className="text-sm font-medium text-indigo-900 block mb-2">Heading</label>
             <input
               type="text"
               placeholder="What do you need to do?"
               name="heading"
               value={formData.heading}
               onChange={handleChange}
-              className="w-full h-12 px-3 rounded-full border border-gray-200 
-                       focus:outline-none focus:border-gray-900 focus:ring-1 focus:ring-gray-900
-                       transition-colors duration-200"
+              required
+              className="w-full h-12 px-4 rounded-full border-2 border-indigo-100 
+                       focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500
+                       transition-all duration-200 hover:border-indigo-200
+                       placeholder:text-indigo-300 bg-white"
             />
           </div>
 
           <div>
-            <label className="text-sm font-medium text-gray-700 block mb-2">Description</label>
+            <label className="text-sm font-medium text-indigo-900 block mb-2">Description</label>
             <textarea
               placeholder="Add some details..."
               name="description"
               value={formData.description}
               onChange={handleChange}
               rows={3}
-              className="w-full px-3 py-2 rounded-3xl border border-gray-200 
-                       focus:outline-none focus:border-gray-900 focus:ring-1 focus:ring-gray-900
-                       transition-colors duration-200 resize-none"
+              className="w-full px-4 py-3 rounded-2xl border-2 border-indigo-100 
+                       focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500
+                       transition-all duration-200 hover:border-indigo-200
+                       placeholder:text-indigo-300 bg-white resize-none"
             />
           </div>
 
           <button
             type="submit"
-            className="w-full h-12 bg-gray-900 text-white rounded-full font-medium
-                     hover:bg-gray-800 active:bg-gray-950
-                     transition-colors duration-200"
+            className="w-full h-12 bg-indigo-600 text-white rounded-full font-medium
+                     hover:bg-indigo-700 active:bg-indigo-800
+                     transition-all duration-200
+                     shadow-sm hover:shadow-md
+                     hover:scale-[1.01] active:scale-[0.99]"
           >
             Add Reminder
           </button>

@@ -243,97 +243,102 @@ const Habits = () => {
         setSelectedHabit(null)
         setEditProgress(0)
       }}>
-        <div className="p-6">
-          <div className="flex justify-between items-center mb-4">
-            <h3 className="text-xl font-bold">Manage Habit</h3>
+        <div className=" bg-white rounded-3xl">
+          <div className="flex justify-between items-center mb-6">
+            <h3 className="text-2xl font-bold text-gray-800">Manage Habit</h3>
             {selectedHabit && (
               <button
                 onClick={() => setIsDeleteConfirmOpen(true)}
-                className="p-2 text-red-500 hover:bg-red-50 rounded-full transition-colors"
+                className="p-2.5 text-red-500 hover:bg-red-50 rounded-full transition-all duration-300"
+                aria-label="Delete habit"
               >
-                <RiDeleteBin6Line size={20} />
+                <RiDeleteBin6Line size={22} />
               </button>
             )}
           </div>
           {selectedHabit && (
-            <div className="space-y-4">
-              <div>
-                <h4 className="font-medium text-gray-700 mb-2">{selectedHabit.title}</h4>
-                <p className="text-sm text-gray-500 mb-4">{selectedHabit.subtitle}</p>
+            <div className="space-y-6">
+              <div className="bg-[#FDF4EA] p-5 rounded-2xl">
+                <h4 className="font-semibold text-lg text-gray-800 mb-1">{selectedHabit.title}</h4>
+                <p className="text-gray-600">{selectedHabit.subtitle}</p>
+              </div>
                 
-                <div className="bg-gray-50 p-4 rounded-lg space-y-3">
-                  <label className="block text-sm font-medium text-gray-700">
-                    Update Progress ({editProgress}/{selectedHabit.totalCount})
-                  </label>
-                  
-                  {/* Progress Controls */}
-                  <div className="flex items-center gap-3">
-                    <button
-                      type="button"
-                      onClick={() => setEditProgress(prev => Math.max(0, prev - 1))}
-                      className="w-10 h-10 flex items-center justify-center bg-gray-100 rounded-lg"
-                    >
-                      -
-                    </button>
-                    <input
-                      type="number"
-                      value={editProgress}
-                      onChange={(e) => {
-                        const value = parseInt(e.target.value) || 0
-                        setEditProgress(Math.min(Math.max(0, value), selectedHabit.totalCount))
-                      }}
-                      className="w-20 text-center px-3 py-2 border border-gray-300 rounded-lg"
-                      min="0"
-                      max={selectedHabit.totalCount}
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setEditProgress(prev => Math.min(prev + 1, selectedHabit.totalCount))}
-                      className="w-10 h-10 flex items-center justify-center bg-gray-100 rounded-lg"
-                    >
-                      +
-                    </button>
-                  </div>
-                  {/* Progress Bar */}
-                  <div className="flex gap-1">
-                    {(() => {
-                      const maxBars = 10
-                      const barsToShow = Math.min(maxBars, selectedHabit.totalCount)
-                      const progressPerBar = selectedHabit.totalCount / barsToShow
-                      
-                      return [...Array(barsToShow)].map((_, i) => {
-                        const progressForThisBar = (editProgress / selectedHabit.totalCount) * barsToShow
-                        return (
-                          <div
-                            key={i}
-                            className={`flex-1 h-2 rounded-full ${
-                              i < progressForThisBar ? 'bg-[#F4A261]' : 'bg-gray-200'
-                            }`}
-                          />
-                        )
-                      })
-                    })()}
-                  </div>
-                </div>
-
-                {/* Update Button */}
-                <div className="mt-6">
-                  <button
-                    onClick={async () => {
-                      await handleUpdateProgress(
-                        selectedHabit.id,
-                        editProgress,
-                        selectedHabit.totalCount
-                      )
-                      setIsEditMode(false)
-                      setSelectedHabit(null)
-                    }}
-                    className="w-full bg-black text-white py-2.5 rounded-lg"
-                  >
+              <div className="bg-gray-50 p-5 rounded-2xl space-y-4">
+                <div className="flex items-center justify-between">
+                  <label className="font-medium text-gray-700">
                     Update Progress
+                  </label>
+                  <span className="text-sm font-medium text-gray-500">
+                    {editProgress}/{selectedHabit.totalCount}
+                  </span>
+                </div>
+                  
+                {/* Progress Controls */}
+                <div className="flex items-center gap-4">
+                  <button
+                    type="button"
+                    onClick={() => setEditProgress(prev => Math.max(0, prev - 1))}
+                    className="w-12 h-12 flex items-center justify-center bg-white rounded-xl border border-gray-200 hover:bg-gray-50 active:scale-95 transition-all duration-200 text-lg font-medium"
+                  >
+                    -
+                  </button>
+                  <input
+                    type="number"
+                    value={editProgress}
+                    onChange={(e) => {
+                      const value = parseInt(e.target.value) || 0
+                      setEditProgress(Math.min(Math.max(0, value), selectedHabit.totalCount))
+                    }}
+                    className="flex-1 text-center px-4 py-3 bg-white border border-gray-200 rounded-xl text-lg font-medium focus:ring-2 focus:ring-[#F4A261] focus:border-transparent transition-all duration-200"
+                    min="0"
+                    max={selectedHabit.totalCount}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setEditProgress(prev => Math.min(prev + 1, selectedHabit.totalCount))}
+                    className="w-12 h-12 flex items-center justify-center bg-white rounded-xl border border-gray-200 hover:bg-gray-50 active:scale-95 transition-all duration-200 text-lg font-medium"
+                  >
+                    +
                   </button>
                 </div>
+
+                {/* Progress Bar */}
+                <div className="flex gap-1.5 pt-2">
+                  {(() => {
+                    const maxBars = 10
+                    const barsToShow = Math.min(maxBars, selectedHabit.totalCount)
+                    const progressPerBar = selectedHabit.totalCount / barsToShow
+                    
+                    return [...Array(barsToShow)].map((_, i) => {
+                      const progressForThisBar = (editProgress / selectedHabit.totalCount) * barsToShow
+                      return (
+                        <div
+                          key={i}
+                          className={`flex-1 h-2.5 rounded-full transition-all duration-300 ${
+                            i < progressForThisBar ? 'bg-[#F4A261]' : 'bg-gray-200'
+                          }`}
+                        />
+                      )
+                    })
+                  })()}
+                </div>
               </div>
+
+              {/* Update Button */}
+              <button
+                onClick={async () => {
+                  await handleUpdateProgress(
+                    selectedHabit.id,
+                    editProgress,
+                    selectedHabit.totalCount
+                  )
+                  setIsEditMode(false)
+                  setSelectedHabit(null)
+                }}
+                className="w-full bg-[#F4A261] text-white font-medium py-3.5 rounded-xl hover:bg-[#e59555] active:scale-[0.99] transition-all duration-200"
+              >
+                Update Progress
+              </button>
             </div>
           )}
         </div>
