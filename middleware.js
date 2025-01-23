@@ -14,7 +14,8 @@ export const config = {
     '/addworkout/:path*',
     '/foocus/:path*',
     '/today-workout/:path*',
-    '/reminder/:path*'
+    '/reminder/:path*',
+    '/auth/:path*',
   ]
 };
 
@@ -23,7 +24,7 @@ export async function middleware(request) {
   const { pathname } = request.nextUrl;
 
   // List of public pages
-  const publicPages = ['/', '/login', '/signup'];
+  const publicPages = ['/', '/login', '/signup', '/auth'];
   const isPublicPage = publicPages.includes(pathname);
 
   // If user is authenticated and trying to access public pages, redirect to diet

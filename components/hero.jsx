@@ -17,17 +17,17 @@ const FitnessAI = () => {
   };
 
   const handleAuthClick = (authType) => {
-    if (authType === "login") {
-      toast("Login to Gymiee",{
+    if (authType === "auth") {
+      toast("Welcome to Gymiee",{
         duration:1500,
       });
       
-      router.push("/login"); // Redirect to Login page
-    } else if (authType === "signup") {
+      router.push("/auth"); // Redirect to Login page
+    } else if (authType === "auth") {
       toast("Register at Gymiee",{
         duration:1500,
       });
-      router.push("/signup"); // Redirect to Sign Up page
+      router.push("/auth"); // Redirect to Sign Up page
     }
   };
 
@@ -65,9 +65,12 @@ const FitnessAI = () => {
       </div>
 
       {/* Navigation */}
-      <div className="absolute top-6 right-6" onClick={openModal}>
-        <button className="text-white font-semibold px-6 py-4 rounded-full shadow hover:bg-gray-600 transition">
-          Main Menu
+      <div className="absolute top-6 right-6">
+        <button 
+          onClick={() => handleAuthClick("auth")}
+          className="text-white font-semibold px-6 py-4 rounded-full shadow hover:bg-gray-600 transition"
+        >
+          Join Now
         </button>
       </div>
 
