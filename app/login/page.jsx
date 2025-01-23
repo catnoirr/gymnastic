@@ -20,7 +20,13 @@ export default function FancyLoginPanel({ activeForm, setActiveForm }) {
       const result = await signInWithEmailAndPassword(auth, email, password);
       const token = await result.user.getIdToken();
       
-      setCookie('token', token); // Set cookie without expiration
+      // Set cookie with a 1-year expiration
+      setCookie('token', token, {
+        expires: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000), // 1 year
+        path: '/',
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'strict'
+      });
       router.push("/foocus");
     } catch (err) {
       console.error(err);
