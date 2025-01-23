@@ -6,4 +6,4 @@ export default function MobileLoginPage() {
       <LoginMain />
     </div>
   )
-} 
+}  
