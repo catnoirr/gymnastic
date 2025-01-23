@@ -125,15 +125,40 @@ export default function Reminder() {
 
   if (loading) {
     return (
-      <div className="bg-white rounded-3xl p-8 shadow-lg w-[400px] min-h-[300px] flex items-center justify-center">
-        <div className="animate-pulse text-gray-500">Loading reminders...</div>
+      <div className="bg-white rounded-3xl p-8 shadow-lg w-full">
+        <div className="space-y-6">
+          {/* Priority buttons skeleton */}
+          <div className="flex justify-between gap-4">
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="w-[110px] h-12 rounded-3xl bg-gray-200 animate-pulse" />
+            ))}
+          </div>
+
+          {/* Reminder content skeleton */}
+          <div className="space-y-4">
+            <div className="h-6 bg-gray-200 rounded-full w-3/4 animate-pulse" />
+            <div className="h-4 bg-gray-200 rounded-full w-1/2 animate-pulse" />
+          </div>
+
+          {/* Action buttons skeleton */}
+          <div className="flex justify-between items-center">
+            <div className="flex gap-2">
+              <div className="w-10 h-10 rounded-xl bg-gray-200 animate-pulse" />
+              <div className="w-10 h-10 rounded-xl bg-gray-200 animate-pulse" />
+            </div>
+            <div className="flex gap-2">
+              <div className="w-10 h-10 rounded-xl bg-gray-200 animate-pulse" />
+              <div className="w-10 h-10 rounded-xl bg-gray-200 animate-pulse" />
+            </div>
+          </div>
+        </div>
       </div>
     )
   }
 
   if (!user) {
     return (
-      <div className="bg-white rounded-3xl p-8 shadow-lg w-[400px] min-h-[300px] flex items-center justify-center">
+      <div className="bg-white rounded-3xl p-8 shadow-lg w-full flex items-center justify-center">
         <p className="text-gray-500">Please log in to view reminders</p>
       </div>
     )
@@ -141,7 +166,7 @@ export default function Reminder() {
 
   if (reminders.length === 0) {
     return (
-      <div className="bg-white rounded-3xl p-8 shadow-lg w-[400px] min-h-[300px] flex flex-col items-center justify-center gap-4">
+      <div className="bg-white rounded-3xl p-8 shadow-lg w-full   flex flex-col items-center justify-center gap-4">
         <div className="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center">
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-8 h-8 text-gray-400">
             <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v6m3-3H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -153,7 +178,7 @@ export default function Reminder() {
   }
 
   return (
-    <div className="bg-white rounded-3xl p-8 shadow-lg w-[400px]">
+    <div className="bg-white rounded-3xl p-8 shadow-lg w-full ">
       {/* Priority Toggle */}
       <div className="flex justify-between gap-4 mb-8">
         {['A', 'B', 'C'].map((priority) => (

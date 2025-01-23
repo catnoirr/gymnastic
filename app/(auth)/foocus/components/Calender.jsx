@@ -88,7 +88,7 @@ const Calendar = () => {
 
   return (
     <div
-      className="calendar bg-gray-800 p-3 sm:p-4 rounded-3xl   
+      className="calendar bg-gray-800 p-3 sm:p-4 rounded-3xl     
     "
     >
       {/* Header */}

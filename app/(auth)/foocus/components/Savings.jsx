@@ -1,7 +1,7 @@
 'use client'
 import React, { useState, useEffect, useCallback } from 'react'
 import { db, auth } from '@/lib/firebase'
-import { collection, query, getDocs } from 'firebase/firestore'
+import { collection, query, getDocs, deleteDoc, doc } from 'firebase/firestore'
 import { useAuthState } from 'react-firebase-hooks/auth'
 import AddSavings from './addsavings'
 import BottomDrawer from '../../workout/components/BottomDrawer'
@@ -15,6 +15,7 @@ const Savings = () => {
   const [todayAmount, setTodayAmount] = useState(0)
   const [totalAmount, setTotalAmount] = useState(0)
   const [monthlyWithdrawal, setMonthlyWithdrawal] = useState(0)
+  const [isResetConfirmOpen, setIsResetConfirmOpen] = useState(false)
 
   const fetchSavings = useCallback(async () => {
     if (!user) return
@@ -100,8 +101,35 @@ const Savings = () => {
     }
   }
 
+  // Add reset function
+  const handleReset = async () => {
+    if (!user) return
+
+    try {
+      const savingsRef = collection(db, 'users', user.uid, 'savings')
+      const querySnapshot = await getDocs(savingsRef)
+      
+      // Delete all savings documents
+      const deletePromises = querySnapshot.docs.map(doc => 
+        deleteDoc(doc.ref)
+      )
+      
+      await Promise.all(deletePromises)
+      
+      // Reset local state
+      setTotalAmount(0)
+      setTodayAmount(0)
+      setMonthlyWithdrawal(0)
+      setIsResetConfirmOpen(false)
+      
+    } catch (error) {
+      console.error('Error resetting savings:', error)
+    }
+  }
+
   return (
-    <div className="w-full md:max-w-sm max-w-md mx-auto bg-gradient-to-b from-white to-gray-50 shadow-lg rounded-3xl border border-gray-100">
+    <div className=" w-full md:max-w-sm flex justify-center items-center">
+    <div className="w-full  bg-gradient-to-b from-white to-gray-50 shadow-lg rounded-3xl border border-gray-100">
       <div className="p-6">
         {/* Header */}
         <div className="flex justify-between items-center mb-6">
@@ -109,15 +137,26 @@ const Savings = () => {
             <h2 className="text-xl font-bold text-gray-800">My Savings</h2>
             <p className="text-xs text-gray-500 mt-0.5">Track your financial progress</p>
           </div>
-          <motion.button 
-            whileTap={{ scale: 0.95 }}
-            className="w-9 h-9 flex items-center justify-center bg-green-50 text-green-600 rounded-xl hover:bg-green-100 transition-colors" 
-            onClick={() => setIsOpen(true)}
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-            </svg>
-          </motion.button>
+          <div className="flex gap-2">
+            <motion.button 
+              whileTap={{ scale: 0.95 }}
+              className="w-9 h-9 flex items-center justify-center bg-red-50 text-red-600 rounded-xl hover:bg-red-100 transition-colors" 
+              onClick={() => setIsResetConfirmOpen(true)}
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+              </svg>
+            </motion.button>
+            <motion.button 
+              whileTap={{ scale: 0.95 }}
+              className="w-9 h-9 flex items-center justify-center bg-green-50 text-green-600 rounded-xl hover:bg-green-100 transition-colors" 
+              onClick={() => setIsOpen(true)}
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+              </svg>
+            </motion.button>
+          </div>
         </div>
 
         {/* Circular Progress */}
@@ -212,20 +251,49 @@ const Savings = () => {
           Withdraw Savings
         </button>
       </div>
-
+      </div>
       {/* Bottom Drawers */}
       <BottomDrawer isOpen={isOpen} onClose={() => setIsOpen(false)}>
+        <div className="w-full h-full ">
         <AddSavings 
           onClose={() => setIsOpen(false)} 
           onComplete={handleTransactionComplete}
         />
+        </div>
+        
       </BottomDrawer>
       <BottomDrawer isOpen={isWithdrawOpen} onClose={() => setIsWithdrawOpen(false)}>
+        <div className="w-full h-full">
         <WithdrawSavings 
           onClose={() => setIsWithdrawOpen(false)} 
           onComplete={handleTransactionComplete}
           availableAmount={totalAmount}
         />
+        </div>
+      </BottomDrawer>
+
+      {/* Reset Confirmation Dialog */}
+      <BottomDrawer isOpen={isResetConfirmOpen} onClose={() => setIsResetConfirmOpen(false)}>
+        <div className="p-6 w-full">
+          <h3 className="text-xl font-bold text-gray-800 mb-4">Reset Savings</h3>
+          <p className="text-gray-600 mb-6">
+            Are you sure you want to reset all your savings data? This action cannot be undone.
+          </p>
+          <div className="flex gap-3">
+            <button
+              onClick={() => setIsResetConfirmOpen(false)}
+              className="flex-1 py-2.5 px-4 rounded-xl bg-gray-100 text-gray-700 font-medium"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={handleReset}
+              className="flex-1 py-2.5 px-4 rounded-xl bg-red-500 text-white font-medium hover:bg-red-600"
+            >
+              Reset All
+            </button>
+          </div>
+        </div>
       </BottomDrawer>
     </div>
   )
