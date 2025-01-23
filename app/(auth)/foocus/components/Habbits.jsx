@@ -11,9 +11,46 @@ import BottomDrawer from '../../workout/components/BottomDrawer'
 import AddHabit from './AddHabit'
 import toast from 'react-hot-toast'
 
+const HabitSkeleton = () => (
+  <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between bg-gray-50 rounded-3xl px-6 py-4 sm:p-4 gap-3 sm:gap-0 animate-pulse">
+    <div className="flex items-center gap-4 w-full sm:w-auto">
+      <div className="w-6 h-6 bg-gray-200 rounded-full" />
+      <div className="min-w-0 space-y-2">
+        <div className="h-4 w-32 bg-gray-200 rounded" />
+        <div className="h-3 w-24 bg-gray-200 rounded" />
+      </div>
+    </div>
+    <div className="flex items-center justify-between sm:justify-end gap-3 sm:gap-6 w-full sm:w-auto">
+      <div className="h-4 w-24 bg-gray-200 rounded" />
+      <div className="flex gap-1">
+        {[...Array(5)].map((_, i) => (
+          <div key={i} className="w-1.5 h-6 bg-gray-200 rounded-full" />
+        ))}
+      </div>
+      <div className="w-4 h-4 bg-gray-200 rounded" />
+    </div>
+  </div>
+)
+
+const HabitsCardSkeleton = () => (
+  <div className="bg-white rounded-3xl shadow-md p-6 w-full animate-pulse">
+    <div className="flex justify-between items-center mb-6">
+      <div className="h-8 w-32 bg-gray-200 rounded" />
+      <div className="h-10 w-28 bg-gray-200 rounded-full" />
+    </div>
+
+    <div className="space-y-3">
+      <HabitSkeleton />
+      <HabitSkeleton />
+      <HabitSkeleton />
+    </div>
+  </div>
+)
+
 const Habits = () => {
   const [user] = useAuthState(auth)
   const [habits, setHabits] = useState([])
+  const [loading, setLoading] = useState(true)
   const [isAddHabitOpen, setIsAddHabitOpen] = useState(false)
   const [isEditMode, setIsEditMode] = useState(false)
   const [selectedHabit, setSelectedHabit] = useState(null)
@@ -25,6 +62,7 @@ const Habits = () => {
     if (!user) return
 
     try {
+      setLoading(true)
       const habitsRef = collection(db, 'users', user.uid, 'habits')
       const querySnapshot = await getDocs(habitsRef)
       
@@ -36,6 +74,8 @@ const Habits = () => {
       setHabits(habitsData)
     } catch (error) {
       console.error('Error fetching habits:', error)
+    } finally {
+      setLoading(false)
     }
   }, [user])
 
@@ -116,6 +156,31 @@ const Habits = () => {
     }
   }
 
+  // Update the progress bar rendering in the main habits list
+  const renderProgressBars = (progress, totalCount) => {
+    // Show max 10 bars, combine progress if more
+    const maxBars = 10
+    const barsToShow = Math.min(maxBars, totalCount)
+    const progressPerBar = totalCount / barsToShow
+    
+    return [...Array(barsToShow)].map((_, i) => {
+      const progressForThisBar = (progress / totalCount) * barsToShow
+      return (
+        <div
+          key={i}
+          onClick={() => handleUpdateProgress(habit.id, Math.ceil((i + 1) * progressPerBar), totalCount)}
+          className={`w-1 sm:w-1.5 h-4 sm:h-6 rounded-full cursor-pointer ${
+            i < progressForThisBar ? 'bg-[#F4A261]' : 'bg-gray-200'
+          }`}
+        />
+      )
+    })
+  }
+
+  if (loading) {
+    return <HabitsCardSkeleton />
+  }
+
   return (
     <div className="bg-white rounded-3xl shadow-md p-6 w-full">
       <div className="flex justify-between items-center mb-6">
@@ -148,15 +213,7 @@ const Habits = () => {
                 Completed: {habit.progress}/{habit.totalCount}
               </div>
               <div className="flex gap-1">
-                {[...Array(habit.totalCount)].map((_, i) => (
-                  <div
-                    key={i}
-                    onClick={() => handleUpdateProgress(habit.id, i + 1, habit.totalCount)}
-                    className={`w-1 sm:w-1.5 h-4 sm:h-6 rounded-full cursor-pointer ${
-                      i < habit.progress ? 'bg-[#F4A261]' : 'bg-gray-200'
-                    }`}
-                  />
-                ))}
+                {renderProgressBars(habit.progress, habit.totalCount)}
               </div>
               <div className="relative">
                 <BsThreeDotsVertical 
@@ -239,14 +296,23 @@ const Habits = () => {
                   </div>
                   {/* Progress Bar */}
                   <div className="flex gap-1">
-                    {[...Array(selectedHabit.totalCount)].map((_, i) => (
-                      <div
-                        key={i}
-                        className={`flex-1 h-2 rounded-full ${
-                          i < editProgress ? 'bg-[#F4A261]' : 'bg-gray-200'
-                        }`}
-                      />
-                    ))}
+                    {(() => {
+                      const maxBars = 10
+                      const barsToShow = Math.min(maxBars, selectedHabit.totalCount)
+                      const progressPerBar = selectedHabit.totalCount / barsToShow
+                      
+                      return [...Array(barsToShow)].map((_, i) => {
+                        const progressForThisBar = (editProgress / selectedHabit.totalCount) * barsToShow
+                        return (
+                          <div
+                            key={i}
+                            className={`flex-1 h-2 rounded-full ${
+                              i < progressForThisBar ? 'bg-[#F4A261]' : 'bg-gray-200'
+                            }`}
+                          />
+                        )
+                      })
+                    })()}
                   </div>
                 </div>
 

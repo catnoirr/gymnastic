@@ -8,14 +8,59 @@ import BottomDrawer from '../../workout/components/BottomDrawer'
 import WithdrawSavings from './WithdrawSavings'
 import { motion } from 'framer-motion'
 
+const SavingsSkeleton = () => {
+  return (
+    <div className="w-full md:max-w-sm flex justify-center items-center">
+      <div className="w-full bg-gradient-to-b from-white to-gray-50 shadow-lg rounded-3xl border border-gray-100 p-6">
+        {/* Header Skeleton */}
+        <div className="flex justify-between items-center mb-6">
+          <div>
+            <div className="h-6 w-24 bg-gray-200 rounded-md animate-pulse"></div>
+            <div className="h-3 w-32 bg-gray-200 rounded-md mt-2 animate-pulse"></div>
+          </div>
+          <div className="flex gap-2">
+            <div className="w-9 h-9 bg-gray-200 rounded-xl animate-pulse"></div>
+            <div className="w-9 h-9 bg-gray-200 rounded-xl animate-pulse"></div>
+          </div>
+        </div>
+
+        {/* Circle Skeleton */}
+        <div className="relative w-36 h-36 mx-auto mb-6">
+          <div className="w-full h-full rounded-full bg-gray-200 animate-pulse"></div>
+        </div>
+
+        {/* Stats Row Skeleton */}
+        <div className="grid grid-cols-2 gap-3 mb-6">
+          <div className="bg-white rounded-xl p-3 shadow-sm border border-gray-100">
+            <div className="h-3 w-20 bg-gray-200 rounded-md animate-pulse mb-2"></div>
+            <div className="h-5 w-24 bg-gray-200 rounded-md animate-pulse"></div>
+          </div>
+          <div className="bg-white rounded-xl p-3 shadow-sm border border-gray-100">
+            <div className="h-3 w-20 bg-gray-200 rounded-md animate-pulse mb-2"></div>
+            <div className="h-5 w-24 bg-gray-200 rounded-md animate-pulse"></div>
+          </div>
+        </div>
+
+        {/* Button Skeleton */}
+        <div className="h-10 w-full bg-gray-200 rounded-xl animate-pulse"></div>
+      </div>
+    </div>
+  )
+}
+
 const Savings = () => {
-  const [user] = useAuthState(auth)
+  const [user, loading] = useAuthState(auth)
   const [isOpen, setIsOpen] = useState(false)
   const [isWithdrawOpen, setIsWithdrawOpen] = useState(false)
   const [todayAmount, setTodayAmount] = useState(0)
   const [totalAmount, setTotalAmount] = useState(0)
   const [monthlyWithdrawal, setMonthlyWithdrawal] = useState(0)
   const [isResetConfirmOpen, setIsResetConfirmOpen] = useState(false)
+  const [mounted, setMounted] = useState(false)
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
 
   const fetchSavings = useCallback(async () => {
     if (!user) return
@@ -25,9 +70,7 @@ const Savings = () => {
       const today = new Date()
       today.setHours(0, 0, 0, 0)
 
-      // Get first day of current month
       const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 1)
-
       const querySnapshot = await getDocs(savingsRef)
       
       let total = 0
@@ -38,7 +81,6 @@ const Savings = () => {
         const saving = doc.data()
         total += saving.amount
 
-        // Check if the saving is from today
         const savingDate = saving.createdAt?.toDate()
         if (savingDate) {
           savingDate.setHours(0, 0, 0, 0)
@@ -46,7 +88,6 @@ const Savings = () => {
             todayTotal += saving.amount
           }
           
-          // Check if it's a withdrawal from current month
           if (savingDate >= firstDayOfMonth && saving.type === 'withdrawal') {
             monthWithdrawal += Math.abs(saving.amount)
           }
@@ -125,6 +166,11 @@ const Savings = () => {
     } catch (error) {
       console.error('Error resetting savings:', error)
     }
+  }
+
+  // If not mounted or loading or no user, show skeleton
+  if (!mounted || loading || !user) {
+    return <SavingsSkeleton />
   }
 
   return (

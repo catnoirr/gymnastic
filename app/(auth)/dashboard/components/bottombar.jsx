@@ -51,15 +51,15 @@ const BottomNavBar = () => {
   };
 
   return (
-    <div className="fixed bottom-4 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white rounded-full shadow-lg flex items-center px-4 py-2 md:space-x-4 z-50">
+    <div className="fixed bottom-4 left-1/2 transform -translate-x-1/2 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-full shadow-lg flex items-center px-4 py-2 md:space-x-4 z-50">
       {tabs.map((tab) => (
         <button
           key={tab.name}
           onClick={() => handleTabClick(tab)}
           className={`flex items-center space-x-2 px-3 py-2 rounded-full transition-all duration-300 ${
             activeTab === tab.name
-              ? "bg-white text-gray-800 shadow-lg"
-              : "hover:bg-gray-700"
+              ? "bg-white text-blue-600 shadow-lg"
+              : "hover:bg-blue-600/30"
           }`}
         >
           <div
@@ -78,10 +78,9 @@ const BottomNavBar = () => {
       ))}
       <button
         onClick={handleSignOut}
-        className="flex items-center space-x-2 px-3 py-2 ml-4 bg-red-600 hover:bg-red-700 rounded-full transition-all duration-300"
+        className="flex items-center space-x-2 px-3 py-2 ml-4 bg-purple-700 hover:bg-purple-800 text-white rounded-full transition-all duration-300"
       >
         <FaSignOutAlt size={20} />
-        {/* <span className="text-sm font-medium">Sign Out</span> */}
       </button>
     </div>
   );

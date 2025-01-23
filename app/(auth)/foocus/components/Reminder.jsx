@@ -6,9 +6,9 @@ import { useAuthState } from 'react-firebase-hooks/auth'
 import { toast } from 'react-hot-toast'
 
 const PriorityColors = {
-  'A': 'bg-red-500',
-  'B': 'bg-yellow-500',
-  'C': 'bg-green-500'
+  'A': 'bg-gradient-to-r from-pink-500 to-rose-500',
+  'B': 'bg-gradient-to-r from-amber-400 to-orange-400',
+  'C': 'bg-gradient-to-r from-teal-400 to-emerald-400'
 }
 
 const formatTime = (time) => {
@@ -125,7 +125,7 @@ export default function Reminder() {
 
   if (loading) {
     return (
-      <div className="bg-white rounded-3xl p-8 shadow-lg w-full">
+      <div className="bg-gradient-to-br from-white to-gray-50 rounded-3xl p-8 shadow-lg w-full backdrop-blur-sm">
         <div className="space-y-6">
           {/* Priority buttons skeleton */}
           <div className="flex justify-between gap-4">
@@ -178,7 +178,7 @@ export default function Reminder() {
   }
 
   return (
-    <div className="bg-white rounded-3xl p-8 shadow-lg w-full ">
+    <div className="bg-gradient-to-br from-white to-gray-50 rounded-3xl p-8 shadow-lg w-full backdrop-blur-sm">
       {/* Priority Toggle */}
       <div className="flex justify-between gap-4 mb-8">
         {['A', 'B', 'C'].map((priority) => (
@@ -187,8 +187,8 @@ export default function Reminder() {
             onClick={() => handlePriorityChange(priority)}
             className={`relative w-[110px] h-12 rounded-3xl flex items-center justify-center text-base font-semibold transition-all
               ${selectedPriority === priority 
-                ? 'bg-black text-white shadow-lg transform -translate-y-1' 
-                : 'bg-gray-50 hover:bg-gray-100'
+                ? `${PriorityColors[priority]} text-white shadow-lg transform -translate-y-1` 
+                : 'bg-gray-50/80 hover:bg-gray-100/80 backdrop-blur-sm'
               }
               ${remindersByPriority[priority]?.length > 0 
                 ? '' 
@@ -196,12 +196,12 @@ export default function Reminder() {
               }
             `}
           >
-            <div className="flex items-center gap-2 ">
-              <div className={`w-2 h-2 rounded-full ${PriorityColors[priority]}`} />
+            <div className="flex items-center gap-2">
+              <div className={`w-2 h-2 rounded-full bg-white/80`} />
               {priority}
             </div>
             {remindersByPriority[priority]?.length > 0 && (
-              <div className="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-black text-white text-sm flex items-center justify-center ">
+              <div className="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-black text-white text-sm flex items-center justify-center shadow-md">
                 {remindersByPriority[priority].length}
               </div>
             )}
@@ -216,24 +216,24 @@ export default function Reminder() {
             {currentPriorityReminders.map((_, index) => (
               <div
                 key={index}
-                className={`w-2 h-2 rounded-full transition-all
+                className={`h-2 rounded-full transition-all duration-300
                   ${index === currentIndex 
-                    ? `${PriorityColors[selectedPriority]} w-4` 
-                    : 'bg-gray-200'
+                    ? `${PriorityColors[selectedPriority]} w-8` 
+                    : 'bg-gray-200/60 w-2'
                   }`}
               />
             ))}
           </div>
 
           {/* Reminder Content */}
-          <div className="bg-gray-50 rounded-2xl p-6 mb-6 relative">
+          <div className="bg-white/60 backdrop-blur-sm rounded-2xl p-6 mb-6 relative shadow-sm">
             <div className={`${currentPriorityReminders[currentIndex].completed ? 'opacity-50' : ''}`}>
               <div className="flex items-center gap-3 mb-4">
                 <div className={`w-3 h-3 rounded-full ${PriorityColors[selectedPriority]}`} />
                 <h2 className="text-xl font-semibold flex-grow">
                   {currentPriorityReminders[currentIndex].heading}
                 </h2>
-                <span className="text-sm font-medium px-3 py-1 bg-white rounded-full text-gray-600">
+                <span className="text-sm font-medium px-4 py-1.5 bg-gray-50 rounded-full text-gray-600 shadow-sm">
                   {formatTime(currentPriorityReminders[currentIndex].time)}
                 </span>
               </div>
@@ -244,8 +244,8 @@ export default function Reminder() {
             </div>
 
             {currentPriorityReminders[currentIndex].completed && (
-              <div className="absolute inset-0 flex items-center justify-center bg-black/5 rounded-2xl pointer-events-none">
-                <span className="bg-white px-4 py-2 rounded-full text-sm font-medium text-gray-600">
+              <div className="absolute inset-0 flex items-center justify-center bg-white/60 backdrop-blur-sm rounded-2xl">
+                <span className="bg-gradient-to-r from-emerald-400 to-teal-400 px-6 py-2 rounded-full text-sm font-medium text-white shadow-lg">
                   Completed
                 </span>
               </div>
@@ -256,7 +256,7 @@ export default function Reminder() {
               {!currentPriorityReminders[currentIndex].completed ? (
                 <button
                   onClick={() => handleComplete(currentPriorityReminders[currentIndex].id)}
-                  className="p-2 rounded-lg bg-green-50 text-green-600 hover:bg-green-100 transition-colors"
+                  className="p-2 rounded-lg bg-gradient-to-r from-emerald-400/10 to-teal-400/10 text-emerald-600 hover:from-emerald-400/20 hover:to-teal-400/20 transition-all duration-300"
                   title="Mark as complete"
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5">
@@ -276,7 +276,7 @@ export default function Reminder() {
               )}
               <button
                 onClick={() => handleDelete(currentPriorityReminders[currentIndex].id)}
-                className="p-2 rounded-lg bg-red-50 text-red-600 hover:bg-red-100 transition-colors"
+                className="p-2 rounded-lg bg-gradient-to-r from-rose-400/10 to-pink-400/10 text-rose-600 hover:from-rose-400/20 hover:to-pink-400/20 transition-all duration-300"
                 title="Delete reminder"
               >
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5">
@@ -294,7 +294,7 @@ export default function Reminder() {
             <div className="flex space-x-3">
               <button
                 onClick={handlePrevious}
-                className="p-3 rounded-xl bg-gray-50 hover:bg-gray-100 transition-colors"
+                className="p-3 rounded-xl bg-white/60 hover:bg-white/80 transition-all duration-300 shadow-sm"
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -313,7 +313,7 @@ export default function Reminder() {
               </button>
               <button
                 onClick={handleNext}
-                className="p-3 rounded-xl bg-gray-50 hover:bg-gray-100 transition-colors"
+                className="p-3 rounded-xl bg-white/60 hover:bg-white/80 transition-all duration-300 shadow-sm"
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -335,32 +335,32 @@ export default function Reminder() {
         </>
       ) : (
         <div className="min-h-[200px] flex flex-col items-center justify-center gap-4">
-          <div className="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6 text-gray-400">
+          <div className="w-16 h-16 rounded-full bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center shadow-inner">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-8 h-8 text-gray-400">
               <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v6m3-3H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
           </div>
-          <p className="text-center text-gray-500">
+          <p className="text-gray-500 text-center">
             No reminders found for Priority {selectedPriority}
           </p>
         </div>
       )}
 
       {showDeleteConfirm && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[9999]">
-          <div className="bg-white rounded-3xl p-6 max-w-sm mx-4 shadow-xl">
-            <h3 className="text-lg font-semibold mb-2">Delete Reminder</h3>
+        <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center rounded-3xl justify-center z-[9999]">
+          <div className="bg-white rounded-3xl p-8 max-w-sm mx-4 shadow-xl">
+            <h3 className="text-xl font-semibold mb-3">Delete Reminder</h3>
             <p className="text-gray-600 mb-6">Are you sure you want to delete this reminder?</p>
             <div className="flex justify-end gap-3">
               <button
                 onClick={() => setShowDeleteConfirm(false)}
-                className="px-4 py-2 rounded-xl bg-gray-100 text-gray-600 hover:bg-gray-200 transition-colors"
+                className="px-5 py-2.5 rounded-xl bg-gray-100 text-gray-600 hover:bg-gray-200 transition-all duration-300"
               >
                 Cancel
               </button>
               <button
                 onClick={confirmDelete}
-                className="px-4 py-2 rounded-xl bg-red-500 text-white hover:bg-red-600 transition-colors"
+                className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-rose-500 to-pink-500 text-white hover:from-rose-600 hover:to-pink-600 transition-all duration-300"
               >
                 Delete
               </button>
