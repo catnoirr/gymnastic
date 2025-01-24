@@ -156,13 +156,13 @@ export default function Reminder() {
     )
   }
 
-  if (!user) {
-    return (
-      <div className="bg-white rounded-3xl p-8 shadow-lg w-full flex items-center justify-center">
-        <p className="text-gray-500">Please log in to view reminders</p>
-      </div>
-    )
-  }
+  // if (!user) {
+  //   return (
+  //     <div className="bg-white rounded-3xl p-8 shadow-lg w-full flex items-center justify-center">
+  //       <p className="text-gray-500">Please log in to view reminders</p>
+  //     </div>
+  //   )
+  // }
 
   if (reminders.length === 0) {
     return (
