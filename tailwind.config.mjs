@@ -32,6 +32,52 @@ export default {
       animation: {
         slideDownAndFade: 'slideDownAndFade 0.2s cubic-bezier(0.16, 1, 0.3, 1)',
       },
+      keyframes: {
+        'slide-up': {
+          '0%': { transform: 'translateY(100%)' },
+          '100%': { transform: 'translateY(0)' },
+        }
+      },
+      animation: {
+        'slide-up': 'slide-up 0.3s ease-out',
+      },
+      keyframes: {
+        'fade-in': {
+          '0%': { opacity: '0' },
+          '100%': { opacity: '1' },
+        },
+        'bounce-in': {
+          '0%': { transform: 'scale(0)' },
+          '50%': { transform: 'scale(1.2)' },
+          '100%': { transform: 'scale(1)' },
+        },
+        'complete': {
+          '0%': { transform: 'scale(1)' },
+          '50%': { transform: 'scale(0.95)' },
+          '100%': { transform: 'scale(1)' },
+        },
+        'overlay-fade': {
+          '0%': { opacity: '0' },
+          '100%': { opacity: '1' },
+        },
+        'check-bounce': {
+          '0%': { transform: 'scale(0.5)', opacity: '0' },
+          '50%': { transform: 'scale(1.2)' },
+          '100%': { transform: 'scale(1)', opacity: '1' },
+        },
+        'content-fade': {
+          '0%': { opacity: '1' },
+          '100%': { opacity: '0.5' },
+        }
+      },
+      animation: {
+        'fade-in': 'fade-in 0.5s ease-out',
+        'bounce-in': 'bounce-in 0.5s ease-out',
+        'complete': 'complete 0.5s ease-out',
+        'overlay-fade': 'overlay-fade 0.3s ease-out forwards',
+        'check-bounce': 'check-bounce 0.5s ease-out forwards',
+        'content-fade': 'content-fade 0.3s ease-out forwards',
+      },
     },
   },
   darkMode: "class",
