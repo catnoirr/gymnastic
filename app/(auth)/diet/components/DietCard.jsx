@@ -76,7 +76,36 @@ const DietCard = ({ meal, userId, onUpdate }) => {
   };
 
   return (
-    <div className="relative bg-white p-4 md:p-6 rounded-2xl md:rounded-3xl shadow-md hover:shadow-md transition-all duration-300 w-full">
+    <div className="relative bg-white p-4 md:p-6 rounded-3xl md:rounded-3xl shadow-md hover:shadow-md transition-all duration-300 w-full overflow-hidden">
+      {/* Background Gradients */}
+      <div className="absolute inset-0 pointer-events-none">
+        <div className="absolute -right-32 -top-32 w-96 h-96 bg-blue-50/50 rounded-full blur-3xl"></div>
+        <div className="absolute -left-32 -bottom-32 w-96 h-96 bg-purple-50/50 rounded-full blur-3xl"></div>
+      </div>
+
+      {/* Background SVG Pattern */}
+      <div className="absolute inset-0 opacity-[0.03] pointer-events-none">
+        <svg className="absolute -right-16 -top-16 w-64 h-64 text-blue-600" viewBox="0 0 200 200" fill="none">
+          {/* Fork pattern */}
+          <path d="M80,20 L80,60 M70,20 L70,60 M90,20 L90,60 M80,60 C80,75 70,80 80,100" 
+            stroke="currentColor" strokeWidth="6" strokeLinecap="round"/>
+          {/* Plate circular pattern */}
+          <circle cx="100" cy="100" r="60" stroke="currentColor" strokeWidth="4" strokeDasharray="4 6"/>
+          {/* Spoon pattern */}
+          <path d="M120,20 C160,20 160,60 120,60 L120,100" 
+            stroke="currentColor" strokeWidth="6" strokeLinecap="round"/>
+        </svg>
+        
+        <svg className="absolute -left-16 -bottom-16 w-64 h-64 text-purple-600" viewBox="0 0 200 200" fill="none">
+          {/* Bowl pattern */}
+          <path d="M60,80 C60,140 140,140 140,80 C140,60 100,40 100,40 C100,40 60,60 60,80Z" 
+            stroke="currentColor" strokeWidth="4" fill="none"/>
+          {/* Steam lines */}
+          <path d="M85,30 C85,20 95,20 95,30 M100,25 C100,15 110,15 110,25 M115,30 C115,20 125,20 125,30" 
+            stroke="currentColor" strokeWidth="3" strokeLinecap="round"/>
+        </svg>
+      </div>
+
       {/* Completion Overlay */}
       {(meal?.completed || isCompletingAnimation) && (
         <div className={`absolute inset-0 flex items-center justify-center rounded-3xl 
@@ -94,7 +123,7 @@ const DietCard = ({ meal, userId, onUpdate }) => {
           </div>
         )}
         
-      <div className={`flex flex-col h-full ${meal?.completed ? 'opacity-50' : ''} 
+      <div className={`flex flex-col h-full relative z-10 ${meal?.completed ? 'opacity-50' : ''} 
         ${isCompletingAnimation ? 'animate-content-fade' : ''}`}
       >
           <div className="flex items-center justify-between mb-3 md:mb-4">
@@ -103,14 +132,14 @@ const DietCard = ({ meal, userId, onUpdate }) => {
                 <IoFastFood className="w-5 h-5 md:w-6 md:h-6" />
               </div>
               <div className="flex flex-col">
-                <h2 className="text-base md:text-lg font-medium">
+                <h2 className="text-2xl md:text-lg font-medium">
                   {meal?.name}
                 </h2>
                 <span className="text-sm md:text-base text-blue-600">{formatTimeToAMPM(meal?.time)}</span>
               </div>
             </div>
-            <div className="bg-blue-600 px-2 md:px-3 py-1 rounded-full">
-              <span className="text-xs md:text-sm text-white">{getTimeStatus(meal?.time)}</span>
+            <div className="bg-blue-600 px-6 md:px-3 md:py-1 py-2 rounded-full">
+              <span className="text-sm md:text-sm text-white">{getTimeStatus(meal?.time)}</span>
             </div>
           </div>
 
@@ -124,14 +153,14 @@ const DietCard = ({ meal, userId, onUpdate }) => {
                   <div className="flex items-start gap-2">
                     <div className="w-2 h-2 rounded-full bg-blue-600 mt-2"></div>
                     <div className="flex flex-col">
-                      <span className="text-sm md:text-base font-medium">{item.name}</span>
-                      <div className="text-xs md:text-sm text-gray-500">
+                      <span className="text-lg md:text-base font-medium">{item.name}</span>
+                      <div className="text-sm md:text-sm text-gray-500">
                         <span>{item.quantity}g</span>
                         <span className="ml-1">{item.protein}g protein</span>
                       </div>
                     </div>
                   </div>
-                  <span className="text-sm md:text-base font-medium">{item.calories}kcal</span>
+                  <span className="text-lg md:text-base font-medium">{item.calories}kcal</span>
                 </div>
               ))}
             </div>
@@ -139,12 +168,12 @@ const DietCard = ({ meal, userId, onUpdate }) => {
             <div className="pt-3 md:pt-4 border-t mt-3">
               <div className="flex items-center gap-2">
                 <IoNutrition className="w-4 h-4 md:w-5 md:h-5 text-purple-600" />
-                <span className="text-xs md:text-sm text-gray-500">Total Nutrients</span>
+                <span className="text-lg md:text-sm text-gray-500">Total Nutrients</span>
               </div>
               <div className="flex gap-2 mt-1">
-                <span className="text-sm md:text-base text-blue-600 font-medium">{meal?.totalCalories} kcal</span>
+                <span className="text-lg md:text-base text-blue-600 font-medium">{meal?.totalCalories} kcal</span>
                 <span className="text-gray-300">•</span>
-                <span className="text-sm md:text-base text-purple-600 font-medium">{meal?.totalProtein}g protein</span>
+                <span className="text-lg md:text-base text-purple-600 font-medium">{meal?.totalProtein}g protein</span>
               </div>
             </div>
           </div>
@@ -154,13 +183,13 @@ const DietCard = ({ meal, userId, onUpdate }) => {
               <>
                 <button 
                   onClick={() => setShowCompleteConfirm(true)}
-                  className="p-1.5 md:p-2 rounded-lg bg-green-50 hover:bg-green-100 text-green-600"
+                  className="p-4 md:p-2 rounded-full bg-green-50 hover:bg-green-100 text-green-600"
                 >
                   <FaCheck className="w-3.5 h-3.5 md:w-4 md:h-4" />
                 </button>
                 <button 
                   onClick={() => setIsDrawerOpen(true)}
-                  className="p-1.5 md:p-2 rounded-lg bg-blue-50 hover:bg-blue-100 text-blue-600"
+                  className="p-4 md:p-2 rounded-full bg-blue-50 hover:bg-blue-100 text-blue-600"
                 >
                   <FaEdit className="w-3.5 h-3.5 md:w-4 md:h-4" />
                 </button>
@@ -168,7 +197,7 @@ const DietCard = ({ meal, userId, onUpdate }) => {
             )}
             <button 
               onClick={() => setShowDeleteConfirm(true)}
-              className="p-1.5 md:p-2 rounded-lg bg-red-50 hover:bg-red-100 text-red-600 z-10"
+              className="p-4 md:p-2 rounded-full bg-red-50 hover:bg-red-100 text-red-600 z-10"
             >
               <FaTrash className="w-3.5 h-3.5 md:w-4 md:h-4" />
             </button>
@@ -178,19 +207,19 @@ const DietCard = ({ meal, userId, onUpdate }) => {
       {/* Delete Confirmation Modal */}
       {showDeleteConfirm && (
         <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-xl md:rounded-2xl p-4 md:p-6 max-w-sm w-full mx-4">
-            <h3 className="text-base md:text-lg font-semibold mb-2">Delete Meal</h3>
+          <div className="bg-white rounded-3xl md:rounded-2xl p-6 md:p-6 max-w-sm w-full mx-4">
+            <h3 className="text-2xl md:text-lg font-semibold mb-2">Delete Meal</h3>
             <p className="text-sm md:text-base text-gray-600 mb-4">Are you sure you want to delete this meal? This action cannot be undone.</p>
             <div className="flex gap-3">
               <button
                 onClick={handleDelete}
-                className="flex-1 bg-red-600 text-white py-2 rounded-lg hover:bg-red-700"
+                className="flex-1 bg-red-600 text-white py-2 rounded-3xl hover:bg-red-700"
               >
                 Delete
               </button>
               <button
                 onClick={() => setShowDeleteConfirm(false)}
-                className="flex-1 bg-gray-100 text-gray-700 py-2 rounded-lg hover:bg-gray-200"
+                className="flex-1 bg-gray-100 text-gray-700 py-2 rounded-3xl hover:bg-gray-200"
               >
                 Cancel
               </button>
@@ -202,19 +231,19 @@ const DietCard = ({ meal, userId, onUpdate }) => {
       {/* Complete Confirmation Modal */}
       {showCompleteConfirm && (
         <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-xl md:rounded-2xl p-4 md:p-6 max-w-sm w-full mx-4">
-            <h3 className="text-base md:text-lg font-semibold mb-2">Complete Meal</h3>
+          <div className="bg-white rounded-3xl md:rounded-2xl p-6 md:p-6 max-w-sm w-full mx-4">
+            <h3 className="text-2xl md:text-lg font-semibold mb-2">Complete Meal</h3>
             <p className="text-sm md:text-base text-gray-600 mb-4">Are you sure you want to mark this meal as completed?</p>
             <div className="flex gap-3">
               <button
                 onClick={handleComplete}
-                className="flex-1 bg-green-600 text-white py-2 rounded-lg hover:bg-green-700"
+                className="flex-1 bg-green-600 text-white py-2 rounded-3xl hover:bg-green-700"
               >
                 Complete
               </button>
               <button
                 onClick={() => setShowCompleteConfirm(false)}
-                className="flex-1 bg-gray-100 text-gray-700 py-2 rounded-lg hover:bg-gray-200"
+                className="flex-1 bg-gray-100 text-gray-700 py-2 rounded-3xl hover:bg-gray-200"
               >
                 Cancel
               </button>
@@ -289,7 +318,42 @@ const DietCardList = () => {
 
   if (dietData.length === 0) {
     return (
-      <div className="col-span-full flex flex-col items-center justify-center p-8 bg-white rounded-3xl">
+      <div className="col-span-full  flex flex-col items-center justify-center p-8  bg-white rounded-3xl">
+        <svg className="w-48 h-48 text-gray-300 mb-6" viewBox="0 0 200 200" fill="none">
+          {/* Main plate */}
+          <ellipse cx="100" cy="110" rx="70" ry="20" stroke="currentColor" strokeWidth="3"/>
+          <path d="M30,110 C30,90 170,90 170,110" stroke="currentColor" strokeWidth="3" fill="none"/>
+          
+          {/* Decorative patterns on plate */}
+          <circle cx="100" cy="110" r="50" stroke="currentColor" strokeWidth="1" strokeDasharray="4 6"/>
+          <circle cx="100" cy="110" r="35" stroke="currentColor" strokeWidth="1" strokeDasharray="4 6"/>
+          
+          {/* Floating utensils */}
+          <g transform="translate(-20,-20) rotate(-15 100 100)">
+            {/* Fork */}
+            <path d="M80,60 L80,90 M90,60 L90,90 M100,60 L100,90 M90,90 C90,110 80,120 90,140" 
+              stroke="currentColor" strokeWidth="3" strokeLinecap="round"/>
+          </g>
+          
+          <g transform="translate(20,-20) rotate(15 100 100)">
+            {/* Spoon */}
+            <path d="M120,60 C150,60 150,90 120,90 L120,140" 
+              stroke="currentColor" strokeWidth="3" strokeLinecap="round"/>
+            <ellipse cx="135" cy="60" rx="15" ry="10" 
+              stroke="currentColor" strokeWidth="3" transform="rotate(-15 135 60)"/>
+          </g>
+          
+          {/* Steam lines */}
+          <path d="M70,45 C70,35 80,35 80,45 M90,40 C90,30 100,30 100,40 M110,35 C110,25 120,25 120,35" 
+            stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+            <animateTransform
+              attributeName="transform"
+              type="translate"
+              values="0 0; 0 -5; 0 0"
+              dur="3s"
+              repeatCount="indefinite"/>
+          </path>
+        </svg>
         <div className="text-gray-500 text-center">
           <p className="text-lg font-medium mb-2">No meals added yet</p>
           <p className="text-sm">Start by adding your first meal!</p>

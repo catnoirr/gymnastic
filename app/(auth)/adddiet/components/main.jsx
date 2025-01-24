@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { db, auth } from "@/lib/firebase";
 import { doc, updateDoc, arrayUnion } from "firebase/firestore";
 import { FiClock, FiPlusCircle, FiSave, FiTrash2 } from "react-icons/fi";
@@ -7,6 +7,7 @@ import { GiMeal, GiWeightScale } from "react-icons/gi";
 import { BiCalendar } from "react-icons/bi";
 import { FaFire, FaDumbbell } from "react-icons/fa";
 import toast, { Toaster } from 'react-hot-toast';
+import { FoodIllustration, HealthyFoodPattern } from './illustrations';
 
 const AddDiet = () => {
   const [meal, setMeal] = useState({
@@ -16,6 +17,28 @@ const AddDiet = () => {
     totalCalories: "",
     totalProtein: "",
   });
+
+  useEffect(() => {
+    calculateTotals();
+  }, [meal.items]);
+
+  const calculateTotals = () => {
+    const totals = meal.items.reduce((acc, item) => {
+      const calories = parseFloat(item.calories) || 0;
+      const protein = parseFloat(item.protein) || 0;
+      
+      return {
+        calories: acc.calories + calories,
+        protein: acc.protein + protein
+      };
+    }, { calories: 0, protein: 0 });
+
+    setMeal(prev => ({
+      ...prev,
+      totalCalories: totals.calories.toString(),
+      totalProtein: totals.protein.toString()
+    }));
+  };
 
   const removeItem = (index) => {
     const items = [...meal.items];
@@ -132,73 +155,96 @@ const AddDiet = () => {
   };
 
   return (
-    <div className="w-full">
+    <div className="relative w-full min-h-screen ">
+      {/* <HealthyFoodPattern /> */}
       <Toaster />
-      <div className="pb-20">
-        <div className="grid grid-cols-2 gap-8">
-          <div className="mb-6">
-            <label className="flex items-center gap-2 text-lg font-medium text-black mb-3">
-              <GiMeal className="text-2xl text-black" />
-              Meal Name
-            </label>
-            <input
-              type="text"
-              name="name"
-              value={meal.name}
-              onChange={handleMealChange}
-              className="w-full p-2 border shadow-md rounded-full focus:outline-none focus:ring-2 focus:ring-black bg-gray-100"
-              placeholder="e.g., Breakfast"
-            />
-          </div>
+      
+      <div className=" md:px-4">
+        {/* Header Section */}
+        
 
-          <div className="mb-6">
-            <label className="flex items-center gap-2 text-lg font-medium text-black mb-3">
-              <FiClock className="text-2xl text-black" />
-              Time
-            </label>
-            <input
-              type="time"
-              name="time"
-              value={meal.time}
-              onChange={handleMealChange}
-              placeholder="e.g., 8:00 AM"
-              className="w-full p-2 border shadow-md rounded-full focus:outline-none focus:ring-2 focus:ring-black bg-gray-100"
-            />
-          </div>
+        <div className="grid md:grid-cols-2 gap-12 items-start">
+          {/* Left Column - Form */}
+          <div className="bg-white rounded-3xl shadow-xl p-8 border border-gray-100">
+            <div className="grid grid-cols-1 gap-6">
+              <div className="space-y-4">
+                <label className="flex items-center gap-2 text-lg font-medium text-gray-700">
+                  <GiMeal className="text-2xl text-indigo-600" />
+                  Meal Name
+                </label>
+                <input
+                  type="text"
+                  name="name"
+                  value={meal.name}
+                  onChange={handleMealChange}
+                  className="w-full p-3 border border-gray-200 rounded-full focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white transition-all duration-200"
+                  placeholder="e.g., Breakfast"
+                />
+              </div>
 
-          <div className="col-span-2">
-            <div className="flex justify-between items-center mb-8">
-              <h3 className="flex items-center gap-2 text-2xl font-semibold text-black">
-                <BiCalendar className="text-2xl" />
-                Items
-              </h3>
-              <button
-                onClick={addItem}
-                className="flex items-center gap-2 bg-black text-white py-3 px-6 rounded-3xl  focus:outline-none focus:ring-2  transition-all"
-              >
-                <FiPlusCircle />
-                Add Another Item
-              </button>
+              <div className="space-y-4">
+                <label className="flex items-center gap-2 text-lg font-medium text-gray-700">
+                  <FiClock className="text-2xl text-indigo-600" />
+                  Time
+                </label>
+                <input
+                  type="time"
+                  name="time"
+                  value={meal.time}
+                  onChange={handleMealChange}
+                  className="w-full p-3 border border-gray-200 rounded-full focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white transition-all duration-200"
+                />
+              </div>
             </div>
+          </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {meal.items.map((item, index) => (
-                <div
-                  key={index}
-                  className="p-6 bg-gradient-to-br from-blue-50 via-white to-purple-50  border rounded-3xl shadow-md hover:shadow-md transition-all"
-                >
+          {/* Right Column - Illustration */}
+          <div className="hidden md:flex justify-center items-center">
+            <FoodIllustration />
+          </div>
+        </div>
+
+        {/* Items Section */}
+        <div className="mt-12">
+          <div className="flex justify-between items-center mb-8">
+            <h3 className="flex items-center gap-2 text-2xl font-semibold text-gray-800">
+              <BiCalendar className="text-2xl text-indigo-600" />
+              Food Items
+            </h3>
+            <button
+              onClick={addItem}
+              className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white py-3 px-6 rounded-3xl shadow-md hover:shadow-lg transition-all duration-200"
+            >
+              <FiPlusCircle />
+              Add Item
+            </button>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {meal.items.map((item, index) => (
+              <div
+                key={index}
+                className="bg-white border border-gray-100 rounded-3xl shadow-md hover:shadow-lg transition-all duration-200 overflow-hidden"
+              >
+                <div className="bg-gradient-to-r from-indigo-50 to-purple-50 p-4 border-b border-gray-100">
+                  <div className="flex justify-between items-center">
+                    <span className="font-medium text-gray-700">Item {index + 1}</span>
+                    <button
+                      onClick={() => removeItem(index)}
+                      className="text-red-500 hover:text-red-700 transition-colors p-2 hover:bg-red-50 rounded-full"
+                    >
+                      <FiTrash2 size={20} />
+                    </button>
+                  </div>
+                </div>
+
+                <div className="p-6 space-y-4">
                   <div className="mb-4">
                     <div className="flex justify-between items-center mb-2">
                       <label className="flex items-center gap-2 text-sm font-medium text-black mb-2">
                         <GiMeal className="text-black" />
                         Item Name
                       </label>
-                      <button
-                        onClick={() => removeItem(index)}
-                        className=" text-red-500 hover:text-red-700 transition-colors"
-                      >
-                        <FiTrash2 size={20} />
-                      </button>
                     </div>
 
                     <input
@@ -253,46 +299,52 @@ const AddDiet = () => {
                     />
                   </div>
                 </div>
-              ))}
-            </div>
-          </div>
-
-          <div className="mb-6">
-            <label className="flex items-center gap-2 text-lg font-medium text-black mb-3">
-              <FaFire className="text-2xl text-black" />
-              Total Calories
-            </label>
-            <input
-              type="text"
-              name="totalCalories"
-              value={meal.totalCalories}
-              onChange={handleMealChange}
-              className="w-full p-4 border shadow-md rounded-full focus:outline-none focus:ring-2 focus:ring-black bg-gray-100"
-              placeholder="e.g., 737"
-            />
-          </div>
-
-          <div className="mb-6">
-            <label className="flex items-center gap-2 text-lg font-medium text-black mb-3">
-              <FaDumbbell className="text-2xl text-black" />
-              Total Protein
-            </label>
-            <input
-              type="text"
-              name="totalProtein"
-              value={meal.totalProtein}
-              onChange={handleMealChange}
-              className="w-full p-4 border shadow-md rounded-full focus:outline-none focus:ring-2 focus:ring-black bg-gray-100"
-              placeholder="e.g., 39"
-            />
+              </div>
+            ))}
           </div>
         </div>
 
+        {/* Totals Section */}
+        <div className="mt-12 bg-white rounded-3xl shadow-xl p-8 border border-gray-100">
+          <div className="grid md:grid-cols-2 gap-8">
+            <div className="space-y-4">
+              <label className="flex items-center gap-2 text-lg font-medium text-gray-700">
+                <FaFire className="text-2xl text-indigo-600" />
+                Total Calories
+              </label>
+              <input
+                type="text"
+                name="totalCalories"
+                value={meal.totalCalories}
+                readOnly
+                className="w-full p-4 bg-gray-50 border border-gray-200 rounded-full cursor-not-allowed"
+                placeholder="Auto-calculated"
+              />
+            </div>
+
+            <div className="space-y-4">
+              <label className="flex items-center gap-2 text-lg font-medium text-gray-700">
+                <FaDumbbell className="text-2xl text-indigo-600" />
+                Total Protein
+              </label>
+              <input
+                type="text"
+                name="totalProtein"
+                value={meal.totalProtein}
+                readOnly
+                className="w-full p-4 bg-gray-50 border border-gray-200 rounded-full cursor-not-allowed"
+                placeholder="Auto-calculated"
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* Save Button */}
         <button
           onClick={saveMeal}
-          className="w-full mt-8 bg-gradient-to-r from-black to-black text-white py-4 rounded-full text-lg font-bold  focus:outline-none focus:ring-2  transition-all flex items-center justify-center gap-2"
+          className="w-full mt-8 bg-gradient-to-r from-indigo-600 to-indigo-700 text-white py-4 rounded-full text-lg font-bold shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all duration-200 flex items-center justify-center gap-2"
         >
-          <FiSave className="text-xl" />
+          <GiMeal className="text-2xl" />
           Save Meal
         </button>
       </div>
