@@ -17,8 +17,16 @@ export default function page() {
           <p className="text-sm">Focus on your goals.</p>
         </div>
         <div className="hidden md:block">
-          <h1 className="text-4xl font-poppins font-semibold ">Monday</h1>
-          <p className="text-center text-sm">20 Jan 2024</p>
+          <h1 className="text-4xl font-poppins font-semibold ">
+            {new Date().toLocaleDateString('en-US', {weekday: 'long'})}
+          </h1>
+          <p className="text-center text-sm">
+            {new Date().toLocaleDateString('en-US', {
+              day: 'numeric',
+              month: 'short', 
+              year: 'numeric'
+            })}
+          </p>
         </div>
         <div className="flex items-center">
           <button
