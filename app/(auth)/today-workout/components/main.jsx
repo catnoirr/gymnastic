@@ -1,13 +1,14 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import BottomDrawer from "@/app/(auth)/workout/components/BottomDrawer";
-import { FiCalendar, FiClock, FiTrash2, FiEye } from "react-icons/fi";
+import { FiCalendar, FiClock, FiEye } from "react-icons/fi";
 import {
   IoFitnessOutline,
   IoBarbell,
   IoCheckmarkCircleOutline,
   IoCheckmarkCircle,
   IoTrophyOutline,
+  IoCalendarOutline,
 } from "react-icons/io5";
 import { GiWeightScale } from "react-icons/gi";
 import { LuRuler } from "react-icons/lu";
@@ -22,6 +23,7 @@ import {
 } from "firebase/firestore";
 import { toast } from "react-hot-toast";
 import WorkoutSets from "@/app/(auth)/today-workout/components/WorkoutSets";
+import WeeklyHistory from "@/app/(auth)/today-workout/components/WeeklyHistory";
 
 // Move getCurrentDay function to the top level
 const getCurrentDay = () => {
@@ -122,6 +124,85 @@ const updateDayCompletion = async (workouts) => {
   }
 };
 
+// Add this function to archive and reset weekly data
+const checkAndResetWeek = async (userId) => {
+  try {
+    const weekRef = collection(doc(db, "users", userId), "week");
+    const lastResetRef = doc(db, "users", userId, "metadata", "lastReset");
+    const historyRef = collection(doc(db, "users", userId), "history");
+    
+    // Get last reset timestamp
+    const lastResetDoc = await getDoc(lastResetRef);
+    const lastReset = lastResetDoc.data()?.timestamp?.toDate() || new Date(0);
+    
+    // Check if it's been a week since last reset
+    const now = new Date();
+    const weekAgo = new Date(lastReset);
+    weekAgo.setDate(weekAgo.getDate() + 7);
+    
+    if (now >= weekAgo) {
+      // Get all days' data before resetting
+      const days = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"];
+      const weekData = {};
+      
+      // Collect all days' data
+      for (const day of days) {
+        const dayDoc = await getDoc(doc(weekRef, day));
+        if (dayDoc.exists()) {
+          weekData[day] = dayDoc.data();
+        }
+      }
+
+      // Archive the week's data with timestamp
+      const weekNumber = Math.ceil((now.getDate() - now.getDay() + 1) / 7);
+      const weekId = `${now.getFullYear()}-W${weekNumber}`;
+      
+      await setDoc(doc(historyRef, weekId), {
+        weekData,
+        startDate: lastReset,
+        endDate: now,
+        archivedAt: serverTimestamp()
+      });
+
+      // Reset all days but preserve exercise structure
+      for (const day of days) {
+        const currentData = weekData[day]?.workouts || {};
+        const resetWorkouts = {};
+
+        // Preserve exercise structure but reset sets and completion status
+        Object.entries(currentData).forEach(([type, workout]) => {
+          resetWorkouts[type] = {
+            type: workout.type,
+            exercises: {}
+          };
+
+          Object.entries(workout.exercises || {}).forEach(([name, exercise]) => {
+            resetWorkouts[type].exercises[name] = {
+              name: exercise.name,
+              workoutType: exercise.workoutType,
+              history: exercise.history || [], // Preserve history
+              sets: [], // Reset sets
+              isCompleted: false // Reset completion status
+            };
+          });
+        });
+
+        await setDoc(doc(weekRef, day), {
+          workouts: resetWorkouts,
+          isAllCompleted: false
+        });
+      }
+      
+      // Update last reset timestamp
+      await setDoc(lastResetRef, { timestamp: serverTimestamp() });
+      
+      toast.success("New week started! Previous week's data has been archived.");
+    }
+  } catch (error) {
+    console.error("Error checking/resetting week:", error);
+  }
+};
+
 export default function Main() {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [selectedExercise, setSelectedExercise] = useState(null);
@@ -134,6 +215,7 @@ export default function Main() {
   const [workoutHistory, setWorkoutHistory] = useState(null);
   const [drawerType, setDrawerType] = useState(null); // 'sets' or 'history'
   const [isDayCompleted, setIsDayCompleted] = useState(false);
+  const [showHistory, setShowHistory] = useState(false);
 
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged((user) => {
@@ -311,60 +393,6 @@ export default function Main() {
     }
   };
 
-  const handleDeleteExercise = async (exercise, e) => {
-    e.stopPropagation();
-
-    try {
-      const userId = auth.currentUser?.uid;
-      if (!userId) {
-        console.error("Please login first");
-        return;
-      }
-
-      const currentDay = getCurrentDay();
-      const userWeekRef = doc(
-        collection(doc(db, "users", userId), "week"),
-        currentDay
-      );
-      const docSnap = await getDoc(userWeekRef);
-
-      if (docSnap.exists()) {
-        const data = docSnap.data();
-        let workouts = { ...data.workouts };
-
-        // Find the workout that contains this exercise
-        Object.keys(workouts).forEach((workoutKey) => {
-          const workout = workouts[workoutKey];
-          if (workout.type === exercise.type && workout.exercises) {
-            // Find and remove the exercise
-            Object.keys(workout.exercises).forEach((exerciseKey) => {
-              if (workout.exercises[exerciseKey].name === exercise.name) {
-                delete workout.exercises[exerciseKey];
-              }
-            });
-
-            // If no exercises left, remove the workout type
-            if (Object.keys(workout.exercises).length === 0) {
-              delete workouts[workoutKey];
-            }
-          }
-        });
-
-        // Update Firebase
-        await setDoc(userWeekRef, { workouts });
-
-        // Update local state
-        setWorkoutTypes((prev) =>
-          prev.filter((ex) => ex.name !== exercise.name)
-        );
-        toast.success("Exercise deleted successfully");
-      }
-    } catch (error) {
-      console.error("Error deleting exercise:", error);
-      toast.error("Failed to delete exercise");
-    }
-  };
-
   const handleSaveWorkoutSet = async (exercise, sets) => {
     try {
       const userId = auth.currentUser?.uid;
@@ -511,26 +539,32 @@ export default function Main() {
         </div>
       )}
       <div className="flex flex-col sm:flex-row justify-between md:items-center gap-4">
-        <div>
-          {/* <h1 className="text-xl md:text-2xl font-poppins font-semibold">
-            Exercise
-          </h1> */}
-          {loading ? (
-            <WorkoutTypeSkeleton />
-          ) : (
-            uniqueWorkoutTypes.length > 0 && (
-              <div className="flex flex-wrap gap-2 mt-2">
-                {uniqueWorkoutTypes.map((type, index) => (
-                  <span
-                    key={index}
-                    className="text-lg md:text-xl bg-gradient-to-r from-blue-50 to-blue-100 text-blue-600 rounded-full px-6 md:px-8 py-2.5 font-poppins flex items-center gap-2 font-semibold shadow-sm hover:shadow-md transition-all duration-200 cursor-default"
-                  >
-                    {type}
-                  </span>
-                ))}
-              </div>
-            )
-          )}
+        <div className="flex items-center justify-between w-full">
+          <div>
+            {loading ? (
+              <WorkoutTypeSkeleton />
+            ) : (
+              uniqueWorkoutTypes.length > 0 && (
+                <div className="flex flex-wrap gap-2 mt-2">
+                  {uniqueWorkoutTypes.map((type, index) => (
+                    <span
+                      key={index}
+                      className="text-lg md:text-xl bg-gradient-to-r from-blue-50 to-blue-100 text-blue-600 rounded-full px-6 md:px-8 py-2.5 font-poppins flex items-center gap-2 font-semibold shadow-sm hover:shadow-md transition-all duration-200 cursor-default"
+                    >
+                      {type}
+                    </span>
+                  ))}
+                </div>
+              )
+            )}
+          </div>
+          <button
+            onClick={() => setShowHistory(true)}
+            className="flex items-center gap-2 px-4 py-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors ml-auto sm:ml-0"
+          >
+            <IoCalendarOutline className="w-5 h-5" />
+            <span className="hidden sm:inline">View History</span>
+          </button>
         </div>
       </div>
 
@@ -550,51 +584,51 @@ export default function Main() {
             <div
               key={index}
               className={`flex flex-col bg-white rounded-3xl p-6 hover:shadow-lg transition-all w-full group shadow-md relative ${
-                exercise.isCompleted
-                  ? "bg-gray-50 opacity-75"
-                  : "hover:scale-[1.02] cursor-pointer"
+                exercise.isCompleted ? "bg-gray-50 opacity-75" : "hover:scale-[1.02] cursor-pointer"
               }`}
             >
               <div
-                onClick={() =>
-                  !exercise.isCompleted && handleExerciseClick(exercise)
-                }
+                onClick={() => !exercise.isCompleted && handleExerciseClick(exercise)}
                 className="flex-1"
               >
                 <div className="flex items-center gap-4 mb-3">
-                  <div
-                    className={`p-3 rounded-xl ${
-                      exercise.isCompleted
-                        ? "bg-gray-100 text-gray-400"
-                        : "bg-blue-50 text-blue-500"
-                    }`}
-                  >
+                  <div className={`p-3 rounded-xl ${
+                    exercise.isCompleted ? "bg-gray-100 text-gray-400" : "bg-blue-50 text-blue-500"
+                  }`}>
                     {exercise.icon}
                   </div>
                   <div className="flex-1">
-                    <p
-                      className={`text-base sm:text-lg font-poppins font-semibold ${
+                    <p className={`text-base sm:text-lg font-poppins font-semibold ${
                         exercise.isCompleted ? "text-gray-500" : "text-gray-800"
-                      }`}
-                    >
+                    }`}>
                       {exercise.name}
                     </p>
                     <p className="text-sm text-gray-500">{exercise.type}</p>
                   </div>
-                  <button
-                    onClick={(e) => handleToggleComplete(exercise, e)}
-                    className={`p-2 rounded-full transition-colors ${
-                      exercise.isCompleted
-                        ? "text-green-500 hover:bg-green-50"
-                        : "text-gray-400 hover:bg-gray-50"
-                    }`}
-                  >
-                    {exercise.isCompleted ? (
-                      <IoCheckmarkCircle className="w-6 h-6" />
-                    ) : (
-                      <IoCheckmarkCircleOutline className="w-6 h-6" />
+                  <div className="flex items-center gap-1">
+                    <button
+                      onClick={(e) => handleHistoryClick(exercise, e)}
+                      className="p-2 hover:bg-blue-50 rounded-full text-blue-500"
+                    >
+                      <FiEye className="w-5 h-5" />
+                    </button>
+                    {exercise.sets && exercise.sets.length > 0 && (
+                      <button
+                        onClick={(e) => handleToggleComplete(exercise, e)}
+                        className={`p-2 rounded-full transition-colors ${
+                          exercise.isCompleted
+                            ? "text-green-500 hover:bg-green-50"
+                            : "text-gray-400 hover:bg-gray-50"
+                        }`}
+                      >
+                        {exercise.isCompleted ? (
+                          <IoCheckmarkCircle className="w-5 h-5" />
+                        ) : (
+                          <IoCheckmarkCircleOutline className="w-5 h-5" />
+                        )}
+                      </button>
                     )}
-                  </button>
+                  </div>
                 </div>
 
                 {/* Show latest set data if available */}
@@ -664,23 +698,6 @@ export default function Main() {
                   <div className="mt-2 text-sm text-gray-400 italic bg-gray-50 p-3 rounded-xl">
                     No sets recorded today
                   </div>
-                )}
-              </div>
-
-              <div className="flex gap-2 justify-end mt-3 pt-3 border-t">
-                <button
-                  onClick={(e) => handleHistoryClick(exercise, e)}
-                  className="p-2 hover:bg-blue-50 rounded-full text-blue-500"
-                >
-                  <FiEye className="w-5 h-5" />
-                </button>
-                {!exercise.isCompleted && (
-                  <button
-                    onClick={(e) => handleDeleteExercise(exercise, e)}
-                    className="p-2 hover:bg-red-50 rounded-full text-red-500"
-                  >
-                    <FiTrash2 className="w-5 h-5" />
-                  </button>
                 )}
               </div>
             </div>
@@ -804,6 +821,25 @@ export default function Main() {
             </button>
           </form>
         )}
+      </BottomDrawer>
+
+      <BottomDrawer
+        isOpen={showHistory}
+        onClose={() => setShowHistory(false)}
+      >
+        <div className="flex flex-col gap-6">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="p-3 bg-blue-50 rounded-xl">
+                <IoCalendarOutline className="w-6 h-6 text-blue-500" />
+              </div>
+              <h1 className="text-xl md:text-2xl font-poppins font-semibold">
+                Workout History
+              </h1>
+            </div>
+          </div>
+          <WeeklyHistory />
+        </div>
       </BottomDrawer>
     </div>
   );
