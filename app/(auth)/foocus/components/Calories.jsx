@@ -7,8 +7,62 @@ import { db, auth } from '@/lib/firebase';
 import { doc, getDoc, updateDoc, onSnapshot } from 'firebase/firestore';
 import { onAuthStateChanged } from 'firebase/auth';
 
+const CaloriesSkeleton = () => (
+  <div className="bg-white rounded-3xl shadow-md p-6 relative overflow-hidden animate-pulse">
+    {/* Background Gradients */}
+    <div className="absolute inset-0 pointer-events-none">
+      <div className="absolute -right-32 -top-32 w-96 h-96 bg-gray-50/50 rounded-full blur-3xl"></div>
+      <div className="absolute -left-32 -bottom-32 w-96 h-96 bg-gray-50/50 rounded-full blur-3xl"></div>
+    </div>
+
+    {/* Header Section */}
+    <div className="relative flex items-center justify-between mb-6">
+      <div className="flex items-center gap-3">
+        <div className="bg-gray-200 p-2.5 rounded-xl w-11 h-11"></div>
+        <div>
+          <div className="h-6 w-32 bg-gray-200 rounded-md"></div>
+          <div className="h-4 w-24 bg-gray-200 rounded-md mt-2"></div>
+        </div>
+      </div>
+      <div className="w-12 h-12 bg-gray-200 rounded-lg"></div>
+    </div>
+
+    {/* Main Content */}
+    <div className="relative flex items-center justify-between">
+      {/* Stats Section */}
+      <div className="flex flex-col gap-4">
+        <div className="space-y-1">
+          <div className="h-4 w-16 bg-gray-200 rounded-md"></div>
+          <div className="h-8 w-28 bg-gray-200 rounded-md mt-2"></div>
+        </div>
+
+        <div className="space-y-1">
+          <div className="h-4 w-16 bg-gray-200 rounded-md"></div>
+          <div className="h-8 w-28 bg-gray-200 rounded-md mt-2"></div>
+        </div>
+
+        <div className="mt-2">
+          <div className="h-8 w-36 bg-gray-200 rounded-lg"></div>
+        </div>
+      </div>
+
+      {/* Progress Ring Skeleton */}
+      <div className="relative w-48 h-48">
+        <div className="w-full h-full rounded-full border-[12px] border-gray-100"></div>
+        <div className="absolute inset-0 flex items-center justify-center">
+          <div className="text-center">
+            <div className="h-4 w-16 bg-gray-200 rounded-md mx-auto mb-2"></div>
+            <div className="h-8 w-20 bg-gray-200 rounded-md mx-auto"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+);
+
 const Calories = () => {
   const [userId, setUserId] = useState(null);
+  const [loading, setLoading] = useState(true);
   const [dailyStats, setDailyStats] = useState({
     targetCalories: 3000,
     consumedCalories: 0,
@@ -24,6 +78,7 @@ const Calories = () => {
       } else {
         setUserId(null);
       }
+      setLoading(true); // Reset loading when auth state changes
     });
 
     return () => unsubscribe();
@@ -79,11 +134,16 @@ const Calories = () => {
           
           setDailyStats(updatedStats);
         }
+        setLoading(false); // Set loading to false when data is ready
       }
     });
 
     return () => unsubscribe();
   }, [userId]);
+
+  if (loading) {
+    return <CaloriesSkeleton />;
+  }
 
   // Calculate percentage and ring properties
   const percentage = (dailyStats.consumedCalories / dailyStats.targetCalories) * 100;
@@ -141,19 +201,26 @@ const Calories = () => {
             <p className="text-sm text-gray-500">Track your intake</p>
           </div>
         </div>
-        <button
-          onClick={handleChangeGoal}
-          className="flex items-center gap-2 text-sm bg-gray-50 hover:bg-gray-100 text-gray-600 px-4 py-2 rounded-xl transition-all duration-200 hover:shadow-md"
-        >
-          <FiEdit className="h-4 w-4" />
-          <span>Edit Goal</span>
-        </button>
+        <svg className="w-12 h-12 text-gray-400" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+          {/* Plate */}
+          <circle cx="24" cy="24" r="20" stroke="currentColor" strokeWidth="2" fill="none"/>
+          
+          {/* Fork and knife */}
+          <path d="M18,12 L18,36 M16,12 L16,20 M20,12 L20,20" 
+            stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+          <path d="M30,12 C34,12 34,20 30,20 L30,36" 
+            stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+            
+          {/* Steam lines */}
+          <path d="M22,10 C22,8 24,8 24,10 M24,8 C24,6 26,6 26,8 M26,10 C26,8 28,8 28,10"
+            stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+        </svg>
       </div>
 
       {/* Main Content */}
       <div className="relative flex items-center justify-between">
         {/* Stats Section */}
-        <div className="flex flex-col gap-4">
+        <div className="flex flex-col gap-4 ">
           <div className="space-y-1">
             <p className="text-sm text-gray-500">Current</p>
             <div className="flex items-baseline gap-1">
