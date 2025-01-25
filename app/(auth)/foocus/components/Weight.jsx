@@ -184,11 +184,25 @@ const Weight = () => {
         (a, b) => new Date(a.date) - new Date(b.date)
       );
 
-      await setDoc(doc(db, "users", userId, "progress", "weight"), {
-        ...weightData,
-        history: updatedHistory,
-        updatedAt: new Date().toISOString()
-      });
+      // Update both the weight document and the main progress document
+      await Promise.all([
+        // Update the weight progress document
+        setDoc(doc(db, "users", userId, "progress", "weight"), {
+          currentWeight: weightData.currentWeight,  // This is what StatsCards reads
+          startWeight: weightData.startWeight,
+          targetWeight: weightData.targetWeight,
+          history: updatedHistory,
+          updatedAt: new Date().toISOString()
+        }),
+        
+        // Update the main user document for consistency
+        updateDoc(doc(db, "users", userId), {
+          'weight.current': weightData.currentWeight,
+          'weight.start': weightData.startWeight,
+          'weight.target': weightData.targetWeight,
+          'weight.updatedAt': new Date().toISOString()
+        })
+      ]);
       
       setStartWeight(weightData.startWeight);
       setCurrentWeight(weightData.currentWeight);

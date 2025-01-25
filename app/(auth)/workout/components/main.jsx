@@ -315,29 +315,7 @@ export default function Main() {
         )}
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 sm:gap-10">
-        <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-2xl p-6">
-          <div className="flex items-center gap-3 mb-2">
-            <FiCalendar className="w-6 h-6 text-blue-500" />
-            <p className="text-xl sm:text-2xl font-poppins font-semibold text-gray-800">Daily Calories</p>
-          </div>
-          <p className="text-lg sm:text-xl font-poppins font-semibold text-blue-600">2000 kcal</p>
-        </div>
-        <div className="bg-gradient-to-br from-purple-50 to-purple-100 rounded-2xl p-6">
-          <div className="flex items-center gap-3 mb-2">
-            <GiWeightScale className="w-6 h-6 text-purple-500" />
-            <p className="text-xl sm:text-2xl font-poppins font-semibold text-gray-800">Current Weight</p>
-          </div>
-          <p className="text-lg sm:text-xl font-poppins font-semibold text-purple-600">70kg</p>
-        </div>
-        <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-2xl p-6">
-          <div className="flex items-center gap-3 mb-2">
-            <LuRuler className="w-6 h-6 text-green-500" />
-            <p className="text-xl sm:text-2xl font-poppins font-semibold text-gray-800">Height</p>
-          </div>
-          <p className="text-lg sm:text-xl font-poppins font-semibold text-green-600">170cm</p>
-        </div>
-      </div>
+      
 
       <BottomDrawer isOpen={isDrawerOpen} onClose={() => setIsDrawerOpen(false)}>
         <form onSubmit={handleSubmitNewWorkout} className="flex flex-col gap-6">
