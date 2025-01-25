@@ -2,7 +2,7 @@
 import React, { useState, useMemo, useEffect } from "react";
 import { MdChevronLeft, MdChevronRight } from "react-icons/md";
 import { db, auth } from '@/lib/firebase';
-import { doc, onSnapshot } from 'firebase/firestore';
+import { doc, onSnapshot, collection, getDocs } from 'firebase/firestore';
 
 const MONTH_NAMES = [
   "January",
@@ -24,20 +24,35 @@ const WEEKDAYS = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"];
 const Calendar = () => {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [calorieHistory, setCalorieHistory] = useState([]);
+  const [workoutHistory, setWorkoutHistory] = useState({});
+
+  const getLocalDateString = (date) => {
+    const d = new Date(date);
+    return new Date(d.getFullYear(), d.getMonth(), d.getDate()).toISOString().split('T')[0];
+  };
 
   useEffect(() => {
     const user = auth.currentUser;
     if (!user) return;
 
-    const userRef = doc(db, 'users', user.uid);
-    const unsubscribe = onSnapshot(userRef, (doc) => {
-      if (doc.exists()) {
-        const userData = doc.data();
-        setCalorieHistory(userData.calorieHistory || []);
-      }
-    });
+    const fetchData = async () => {
+      try {
+        const userRef = doc(db, 'users', user.uid);
+        const unsubscribe = onSnapshot(userRef, (doc) => {
+          if (doc.exists()) {
+            const userData = doc.data();
+            setCalorieHistory(userData.calorieHistory || []);
+            setWorkoutHistory(userData.workoutHistory || {});
+          }
+        });
 
-    return () => unsubscribe();
+        return () => unsubscribe();
+      } catch (error) {
+        console.error("Error fetching calendar data:", error);
+      }
+    };
+
+    fetchData();
   }, []);
 
   const { daysInMonth, firstDay } = useMemo(
@@ -69,30 +84,30 @@ const Calendar = () => {
       today.getMonth() === currentDate.getMonth() &&
       today.getFullYear() === currentDate.getFullYear();
 
-    const normalizeDate = (date) => {
-      return new Date(date.getFullYear(), date.getMonth(), date.getDate())
-        .toISOString()
-        .split('T')[0];
-    };
+    const currentDayString = getLocalDateString(today);
 
-    // Add empty cells for days before the first day of month
     for (let i = 0; i < firstDay; i++) {
       days.push(
         <div key={`empty-${i}`} className="aspect-square text-center p-1" />
       );
     }
 
-    // Add days of the month
     for (let day = 1; day <= daysInMonth; day++) {
       const isToday = isCurrentMonth && today.getDate() === day;
-      const currentDayDate = normalizeDate(
+      const currentDayDate = getLocalDateString(
         new Date(currentDate.getFullYear(), currentDate.getMonth(), day)
       );
       
       const historyEntry = calorieHistory.find(entry => 
-        normalizeDate(new Date(entry.date)) === currentDayDate
+        getLocalDateString(new Date(entry.date)) === currentDayDate
       );
-      const targetNotReached = historyEntry && !historyEntry.isTargetReached;
+
+      const workoutEntry = workoutHistory[currentDayDate];
+      const workoutIncomplete = workoutEntry && !workoutEntry.isCompleted && currentDayDate < currentDayString;
+      
+      const dateToCheck = new Date(currentDate.getFullYear(), currentDate.getMonth(), day);
+      const todayDate = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+      const shouldShowWorkoutStatus = dateToCheck < todayDate;
 
       days.push(
         <div
@@ -107,31 +122,32 @@ const Calendar = () => {
             className={`
               w-6 h-6 text-sm flex items-center justify-center mx-auto
               ${isToday ? "bg-blue-500 rounded-full" : ""}
-              ${targetNotReached ? "bg-red-500 rounded-full" : ""}
+              ${shouldShowWorkoutStatus && workoutIncomplete ? "bg-orange-500 rounded-full" : ""}
+              ${historyEntry && !historyEntry.isTargetReached ? "bg-red-500 rounded-full" : ""}
             `}
           >
             {day}
           </span>
 
-          {/* Tooltip */}
           <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 bg-gray-900 text-white text-xs rounded-lg 
             opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap pointer-events-none z-10
             before:content-[''] before:absolute before:top-full before:left-1/2 before:-translate-x-1/2 
             before:border-4 before:border-transparent before:border-t-gray-900">
-            {historyEntry ? (
-              historyEntry.isTargetReached ? 
-                "Target Reached ✓" : 
-                "Target Not Reached ✗"
-            ) : (
-              isToday ? "Today" : "No Data"
-            )}
+            {shouldShowWorkoutStatus && workoutIncomplete ? "Workout Incomplete" : 
+              historyEntry ? (
+                historyEntry.isTargetReached ? 
+                  "Target Reached ✓" : 
+                  "Target Not Reached ✗"
+              ) : (
+                isToday ? "Today" : "No Data"
+              )}
           </div>
         </div>
       );
     }
 
     return days;
-  }, [currentDate, daysInMonth, firstDay, calorieHistory]);
+  }, [currentDate, daysInMonth, firstDay, calorieHistory, workoutHistory]);
 
   return (
     <div
@@ -177,8 +193,8 @@ const Calendar = () => {
       {/* Legend */}
       <div className="mt-4 flex flex-wrap gap-3 text-xs justify-center sm:justify-start">
         {[
-          { color: "bg-red-400", label: "Absent" },
-          { color: "bg-orange-400", label: "Incomplete Calories" },
+          { color: "bg-red-500", label: "Calorie Target Not Met" },
+          { color: "bg-orange-500", label: "Workout Incomplete" },
           { color: "bg-blue-500", label: "Current Day" },
         ].map(({ color, label }) => (
           <div key={label} className="flex items-center gap-1.5">

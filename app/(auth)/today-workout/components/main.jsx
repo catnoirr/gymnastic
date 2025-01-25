@@ -64,6 +64,12 @@ const WorkoutTypeSkeleton = () => (
 );
 
 // Add this helper function at the top of the file
+const getLocalDateString = (date) => {
+  const d = new Date(date);
+  return new Date(d.getFullYear(), d.getMonth(), d.getDate()).toISOString().split('T')[0];
+};
+
+// Add this helper function at the top of the file
 const compareWithPreviousWorkout = (currentSets, history) => {
   if (!history || history.length < 2) return null;
 
@@ -97,7 +103,6 @@ const updateDayCompletion = async (workouts) => {
       currentDay
     );
 
-    // Check if all exercises are completed
     const allExercises = Object.values(workouts).flatMap((workout) =>
       Object.values(workout.exercises || {})
     );
@@ -106,18 +111,33 @@ const updateDayCompletion = async (workouts) => {
       allExercises.length > 0 &&
       allExercises.every((exercise) => exercise.isCompleted);
 
-    // Update the day's completion status
+    // Get today's date using the helper function
+    const today = getLocalDateString(new Date());
+
+    // Update both current day and workout history
     await setDoc(
       userWeekRef,
       {
         isAllCompleted,
         workouts,
+        lastUpdated: serverTimestamp()
       },
       { merge: true }
     );
 
+    // Update workout history in user document
+    const userRef = doc(db, "users", userId);
+    await setDoc(userRef, {
+      workoutHistory: {
+        [today]: {
+          isCompleted: isAllCompleted,
+          timestamp: serverTimestamp()
+        }
+      }
+    }, { merge: true });
+
     if (isAllCompleted) {
-      console.log(" All exercises completed for today!");
+      console.log("All exercises completed for today!");
     }
   } catch (error) {
     console.error("Error updating day completion:", error);
