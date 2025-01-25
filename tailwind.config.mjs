@@ -78,6 +78,10 @@ export default {
         'check-bounce': 'check-bounce 0.5s ease-out forwards',
         'content-fade': 'content-fade 0.3s ease-out forwards',
       },
+      animation: {
+        'spin-slow': 'spin 3s linear infinite',
+        'bounce-slow': 'bounce 2s infinite',
+      }
     },
   },
   darkMode: "class",

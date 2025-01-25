@@ -37,7 +37,13 @@ const DietCard = ({ meal, userId, onUpdate }) => {
       setIsCompletingAnimation(true);
       
       const userRef = doc(db, 'users', userId);
-      const updatedMeal = { ...meal, completed: true };
+      const today = new Date().toISOString().split('T')[0];
+      const updatedMeal = { 
+        ...meal, 
+        completed: true,
+        completedDate: today 
+      };
+      
       await updateDoc(userRef, {
         diet: arrayRemove(meal)
       });
@@ -49,7 +55,6 @@ const DietCard = ({ meal, userId, onUpdate }) => {
       toast.success('Meal marked as completed!');
       setShowCompleteConfirm(false);
       
-      // Remove animation after 1 second
       setTimeout(() => {
         setIsCompletingAnimation(false);
       }, 1000);
@@ -267,6 +272,12 @@ const DietCardList = () => {
   const [dietData, setDietData] = useState([]);
   const [userId, setUserId] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [dailyStats, setDailyStats] = useState({
+    targetCalories: 3000,
+    consumedCalories: 0,
+    date: new Date().toISOString().split('T')[0], // Today's date
+    isTargetReached: false
+  });
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
@@ -281,6 +292,56 @@ const DietCardList = () => {
     return () => unsubscribe();
   }, []);
 
+  // Initialize or get daily stats
+  useEffect(() => {
+    if (!userId) return;
+
+    const userRef = doc(db, 'users', userId);
+    const today = new Date().toISOString().split('T')[0];
+
+    const initializeDailyStats = async () => {
+      try {
+        const docSnap = await getDoc(userRef);
+        if (docSnap.exists()) {
+          const userData = docSnap.data();
+          
+          // When it's a new day, save the previous day's stats to history
+          if (!userData.dailyStats || userData.dailyStats.date !== today) {
+            // Save only date and target reached status to history
+            await updateDoc(userRef, {
+              'calorieHistory': arrayUnion({
+                date: userData.dailyStats?.date || today,
+                isTargetReached: userData.dailyStats?.isTargetReached || false
+              })
+            });
+
+            // Reset for new day
+            await updateDoc(userRef, {
+              dailyStats: {
+                targetCalories: 3000,
+                consumedCalories: 0,
+                date: today,
+                isTargetReached: false
+              }
+            });
+          }
+          
+          setDailyStats(userData.dailyStats || {
+            targetCalories: 3000,
+            consumedCalories: 0,
+            date: today,
+            isTargetReached: false
+          });
+        }
+      } catch (error) {
+        console.error('Error initializing daily stats:', error);
+      }
+    };
+
+    initializeDailyStats();
+  }, [userId]);
+
+  // When updating the target reached status, also update history if newly reached
   useEffect(() => {
     if (!userId) {
       setLoading(false);
@@ -294,6 +355,41 @@ const DietCardList = () => {
       if (doc.exists()) {
         const userData = doc.data();
         setDietData(userData.diet || []);
+        
+        const today = new Date().toISOString().split('T')[0];
+        const completedMeals = (userData.diet || []).filter(meal => 
+          meal.completed && meal.completedDate === today
+        );
+        const totalConsumed = completedMeals.reduce((sum, meal) => {
+          return sum + (parseInt(meal.totalCalories) || 0);
+        }, 0);
+
+        // Check if target is newly reached
+        const targetReached = totalConsumed >= dailyStats.targetCalories;
+        const wasTargetReached = userData.dailyStats?.isTargetReached || false;
+        
+        // Update Firebase with new consumed calories and target status
+        updateDoc(userRef, {
+          'dailyStats.consumedCalories': totalConsumed,
+          'dailyStats.isTargetReached': targetReached,
+          ...(targetReached && !wasTargetReached ? {
+            'dailyStats.targetReachedAt': new Date().toISOString()
+          } : {})
+        });
+
+        // If target is newly reached, show celebration
+        if (targetReached && !wasTargetReached) {
+          toast.success('Congratulations! You have reached your daily calorie target! 🎉', {
+            duration: 5000,
+            icon: '🎯'
+          });
+        }
+        
+        setDailyStats(prev => ({
+          ...prev,
+          consumedCalories: totalConsumed,
+          isTargetReached: targetReached
+        }));
       } else {
         setDietData([]);
       }
@@ -304,7 +400,27 @@ const DietCardList = () => {
     });
 
     return () => unsubscribe();
-  }, [userId]);
+  }, [userId, dailyStats.targetCalories]);
+
+  // Add this helper function to format numbers
+  const formatNumber = (number) => {
+    return Number(number).toLocaleString('en-US', {
+      maximumFractionDigits: 0,
+      minimumFractionDigits: 0
+    });
+  };
+
+  const sortMeals = (meals) => {
+    const today = new Date().toISOString().split('T')[0];
+    return [...meals].sort((a, b) => {
+      // First sort by completion status (uncompleted first)
+      if (a.completed !== b.completed) {
+        return a.completed ? 1 : -1;
+      }
+      // Then sort by time
+      return a.time.localeCompare(b.time);
+    });
+  };
 
   if (loading) {
     return (
@@ -364,16 +480,190 @@ const DietCardList = () => {
 
   return (
     <>
-      {dietData.map((meal, index) => (
+      {/* Daily Calories Progress Card */}
+      <div className="relative col-span-full bg-white p-6 rounded-3xl shadow-md mb-4 overflow-hidden">
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="text-xl font-semibold">Daily Calories</h2>
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2">
+              <div className="w-3 h-3 rounded-full bg-green-500"></div>
+              <span className="text-sm text-gray-500">Completed</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-3 h-3 rounded-full bg-blue-500"></div>
+              <span className="text-sm text-gray-500">Pending</span>
+            </div>
+            <div className="text-sm text-gray-500">
+              Target: {formatNumber(dailyStats.targetCalories)} kcal
+            </div>
+          </div>
+        </div>
+
+        {/* Progress bar with gradient effect when completed */}
+        <div className="relative h-4 bg-gray-100 rounded-full overflow-hidden">
+          <div 
+            className={`absolute h-full transition-all duration-500 ${
+              dailyStats.isTargetReached 
+                ? 'bg-gradient-to-r from-green-500 via-green-400 to-green-500 animate-gradient'
+                : 'bg-blue-600'
+            }`}
+            style={{ 
+              width: `${Math.min((dailyStats.consumedCalories / dailyStats.targetCalories) * 100, 100)}%`,
+              backgroundSize: '200% 100%'
+            }}
+          />
+        </div>
+
+        <div className="mt-2 flex justify-between text-sm">
+          <span className={`font-medium flex items-center gap-2 ${
+            dailyStats.isTargetReached ? 'text-green-600' : 'text-blue-600'
+          }`}>
+            {formatNumber(dailyStats.consumedCalories)} kcal consumed
+            {dailyStats.isTargetReached && (
+              <span className="inline-flex items-center px-3 py-1 rounded-full bg-green-100 text-green-800 text-xs font-semibold animate-bounce">
+                🎉 Goal Achieved!
+              </span>
+            )}
+          </span>
+          <span className="text-gray-500">
+            {dailyStats.isTargetReached ? (
+              <span className="text-green-600 font-medium">
+                Excellent work! +{formatNumber(dailyStats.consumedCalories - dailyStats.targetCalories)} kcal
+              </span>
+            ) : (
+              `${formatNumber(Math.max(dailyStats.targetCalories - dailyStats.consumedCalories, 0))} kcal remaining`
+            )}
+          </span>
+        </div>
+
+        {/* Confetti effect when target is reached */}
+        {dailyStats.isTargetReached && (
+          <div className="absolute inset-0 pointer-events-none">
+            <div className="absolute top-0 left-1/4 w-1 h-1 bg-blue-500 animate-confetti-1"></div>
+            <div className="absolute top-0 left-1/2 w-1 h-1 bg-green-500 animate-confetti-2"></div>
+            <div className="absolute top-0 right-1/4 w-1 h-1 bg-yellow-500 animate-confetti-3"></div>
+            <div className="absolute -top-2 left-1/3 w-1 h-1 bg-purple-500 animate-confetti-4"></div>
+            <div className="absolute -top-2 right-1/3 w-1 h-1 bg-pink-500 animate-confetti-5"></div>
+            <div className="absolute top-0 left-2/3 w-1 h-1 bg-red-500 animate-confetti-6"></div>
+            
+            {/* Shiny overlay */}
+            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white to-transparent opacity-10 animate-shine"></div>
+          </div>
+        )}
+      </div>
+
+      {/* Status Summary */}
+      <div className="col-span-full mb-4">
+        <div className="flex justify-between items-center text-sm text-gray-500">
+          <div>
+            Total Meals: {dietData.length}
+          </div>
+          <div className="flex gap-4">
+            <div>
+              Completed: {dietData.filter(meal => meal.completed && meal.completedDate === new Date().toISOString().split('T')[0]).length}
+            </div>
+            <div>
+              Pending: {dietData.filter(meal => !meal.completed).length}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Sorted meal cards */}
+      {sortMeals(dietData).map((meal, index) => (
         <DietCard 
           key={index} 
           meal={meal} 
           userId={userId}
-          onUpdate={() => {}} // Remove onUpdate as we're using real-time updates
+          onUpdate={() => {}}
         />
       ))}
     </>
   );
 };
 
+const CalorieHistory = ({ userId }) => {
+  const [history, setHistory] = useState([]);
+  
+  useEffect(() => {
+    if (!userId) return;
+    
+    const userRef = doc(db, 'users', userId);
+    const unsubscribe = onSnapshot(userRef, (doc) => {
+      if (doc.exists()) {
+        const userData = doc.data();
+        setHistory(userData.calorieHistory || []);
+      }
+    });
+
+    return () => unsubscribe();
+  }, [userId]);
+
+  return (
+    <div className="col-span-full bg-white p-6 rounded-3xl shadow-md mt-4">
+      <h2 className="text-xl font-semibold mb-4">Calorie History</h2>
+      <div className="space-y-3">
+        {history.slice(0, 7).map((day, index) => (
+          <div key={index} className="flex justify-between items-center p-3 bg-gray-50 rounded-xl">
+            <div className="flex items-center gap-3">
+              <div className={`w-2 h-2 rounded-full ${day.isTargetReached ? 'bg-green-500' : 'bg-red-500'}`} />
+              <span className="text-gray-600">{new Date(day.date).toLocaleDateString()}</span>
+            </div>
+            <div>
+              {day.isTargetReached ? 
+                <span className="text-green-600">Target Reached ✓</span> : 
+                <span className="text-red-600">Not Reached</span>
+              }
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
 export default DietCardList;
+
+<style jsx>{`
+  @keyframes gradient {
+    0% { background-position: 0% 50%; }
+    100% { background-position: 100% 50%; }
+  }
+
+  @keyframes confetti {
+    0% { transform: translateY(0) rotate(0deg); }
+    100% { transform: translateY(100vh) rotate(360deg); }
+  }
+
+  @keyframes shine {
+    from { transform: translateX(-100%); }
+    to { transform: translateX(100%); }
+  }
+
+  .animate-gradient {
+    animation: gradient 2s linear infinite;
+  }
+
+  .animate-confetti-1 {
+    animation: confetti 2s ease-out infinite;
+  }
+  .animate-confetti-2 {
+    animation: confetti 2.5s ease-out infinite 0.2s;
+  }
+  .animate-confetti-3 {
+    animation: confetti 2.3s ease-out infinite 0.4s;
+  }
+  .animate-confetti-4 {
+    animation: confetti 2.7s ease-out infinite 0.6s;
+  }
+  .animate-confetti-5 {
+    animation: confetti 2.4s ease-out infinite 0.8s;
+  }
+  .animate-confetti-6 {
+    animation: confetti 2.6s ease-out infinite 1s;
+  }
+
+  .animate-shine {
+    animation: shine 2s linear infinite;
+  }
+`}</style>
