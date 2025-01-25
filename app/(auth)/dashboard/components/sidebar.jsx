@@ -15,7 +15,7 @@ import {
 } from "react-icons/fa";
 import { auth } from "@/lib/firebase";
 import { signOut } from "firebase/auth";
-import { deleteCookie } from '@/lib/cookies';
+import { deleteCookie } from "@/lib/cookies";
 
 const Sidebar = () => {
   const router = useRouter();
@@ -37,7 +37,6 @@ const Sidebar = () => {
       tooltip: "Workout",
       route: "/workout",
     },
-    { id: "timer", icon: <FaClock />, tooltip: "Reminder", route: "/reminder" },
   ];
 
   const utilityTabs = [
@@ -57,12 +56,14 @@ const Sidebar = () => {
 
   const [activeTab, setActiveTab] = useState(() => {
     const route = pathname;
-    const tab = tabs.find(t => t.route === route);
+    const tab = tabs.find((t) => t.route === route);
     return tab ? tab.id : "home";
   });
 
   useEffect(() => {
-    const currentTab = [...tabs, ...utilityTabs].find(tab => tab.route === pathname);
+    const currentTab = [...tabs, ...utilityTabs].find(
+      (tab) => tab.route === pathname
+    );
     if (currentTab) {
       setActiveTab(currentTab.id);
     }
@@ -71,7 +72,7 @@ const Sidebar = () => {
   const handleSignOut = async () => {
     try {
       await signOut(auth);
-      deleteCookie('token');
+      deleteCookie("token");
       router.push("/");
     } catch (error) {
       console.error("Error signing out:", error);
@@ -95,8 +96,8 @@ const Sidebar = () => {
                 router.push(tab.route);
               }}
               className={`text-lg hover:text-white rounded-3xl p-3 transition duration-300 ${
-                activeTab === tab.id 
-                  ? "bg-white/20 text-white shadow-lg" 
+                activeTab === tab.id
+                  ? "bg-white/20 text-white shadow-lg"
                   : "text-white/70 hover:bg-white/20"
               }`}
             >
@@ -123,8 +124,8 @@ const Sidebar = () => {
                 router.push(tab.route);
               }}
               className={`text-lg hover:text-white rounded-full p-3 transition duration-300 ${
-                activeTab === tab.id 
-                  ? "bg-white/20 text-white shadow-lg" 
+                activeTab === tab.id
+                  ? "bg-white/20 text-white shadow-lg"
                   : "text-white/70 hover:bg-white/20"
               }`}
             >
@@ -154,7 +155,7 @@ const Sidebar = () => {
 
       {/* Bottom Section */}
       <div className="flex flex-col space-y-6 mt-auto mb-4">
-        <div className="w-12 h-12 rounded-xl overflow-hidden border-2 border-white/20 hover:border-white/40 transition-colors duration-300">
+        <div className="w-12 h-12 rounded-full overflow-hidden border-2 border-white/20 hover:border-white/40 transition-colors duration-300">
           <img
             src="/ab.jpg"
             alt="User Avatar"
