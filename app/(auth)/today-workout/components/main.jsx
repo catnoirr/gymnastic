@@ -2,7 +2,13 @@
 import React, { useState, useEffect } from "react";
 import BottomDrawer from "@/app/(auth)/workout/components/BottomDrawer";
 import { FiCalendar, FiClock, FiTrash2, FiEye } from "react-icons/fi";
-import { IoFitnessOutline, IoBarbell, IoCheckmarkCircleOutline, IoCheckmarkCircle } from "react-icons/io5";
+import {
+  IoFitnessOutline,
+  IoBarbell,
+  IoCheckmarkCircleOutline,
+  IoCheckmarkCircle,
+  IoTrophyOutline,
+} from "react-icons/io5";
 import { GiWeightScale } from "react-icons/gi";
 import { LuRuler } from "react-icons/lu";
 import { db, auth } from "@/lib/firebase";
@@ -16,6 +22,21 @@ import {
 } from "firebase/firestore";
 import { toast } from "react-hot-toast";
 import WorkoutSets from "@/app/(auth)/today-workout/components/WorkoutSets";
+
+// Move getCurrentDay function to the top level
+const getCurrentDay = () => {
+  const dayMap = {
+    0: "sunday",
+    1: "monday",
+    2: "tuesday",
+    3: "wednesday",
+    4: "thursday",
+    5: "friday",
+    6: "saturday",
+  };
+  const today = new Date().getDay();
+  return dayMap[today];
+};
 
 // Skeleton component for workout cards
 const WorkoutSkeleton = () => (
@@ -55,11 +76,50 @@ const compareWithPreviousWorkout = (currentSets, history) => {
     return {
       weightDiff,
       repsDiff,
-      improved: weightDiff > 0 || repsDiff > 0
+      improved: weightDiff > 0 || repsDiff > 0,
     };
   });
 
   return improvements;
+};
+
+// Add this function to check if all exercises are completed
+const updateDayCompletion = async (workouts) => {
+  try {
+    const userId = auth.currentUser?.uid;
+    if (!userId) return;
+
+    const currentDay = getCurrentDay();
+    const userWeekRef = doc(
+      collection(doc(db, "users", userId), "week"),
+      currentDay
+    );
+
+    // Check if all exercises are completed
+    const allExercises = Object.values(workouts).flatMap((workout) =>
+      Object.values(workout.exercises || {})
+    );
+
+    const isAllCompleted =
+      allExercises.length > 0 &&
+      allExercises.every((exercise) => exercise.isCompleted);
+
+    // Update the day's completion status
+    await setDoc(
+      userWeekRef,
+      {
+        isAllCompleted,
+        workouts,
+      },
+      { merge: true }
+    );
+
+    if (isAllCompleted) {
+      console.log(" All exercises completed for today!");
+    }
+  } catch (error) {
+    console.error("Error updating day completion:", error);
+  }
 };
 
 export default function Main() {
@@ -73,21 +133,7 @@ export default function Main() {
   const [authChecked, setAuthChecked] = useState(false);
   const [workoutHistory, setWorkoutHistory] = useState(null);
   const [drawerType, setDrawerType] = useState(null); // 'sets' or 'history'
-
-  // Get current day
-  const getCurrentDay = () => {
-    const dayMap = {
-      0: "sunday",
-      1: "monday",
-      2: "tuesday",
-      3: "wednesday",
-      4: "thursday",
-      5: "friday",
-      6: "saturday",
-    };
-    const today = new Date().getDay();
-    return dayMap[today];
-  };
+  const [isDayCompleted, setIsDayCompleted] = useState(false);
 
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged((user) => {
@@ -102,14 +148,14 @@ export default function Main() {
 
   const handleExerciseClick = (exercise) => {
     setSelectedExercise(exercise);
-    setDrawerType('sets');
+    setDrawerType("sets");
     setIsDrawerOpen(true);
   };
 
   const handleHistoryClick = (exercise, e) => {
     e.stopPropagation();
     setSelectedExercise(exercise);
-    setDrawerType('history');
+    setDrawerType("history");
     setIsDrawerOpen(true);
   };
 
@@ -135,6 +181,7 @@ export default function Main() {
         if (docSnap.exists()) {
           const data = docSnap.data();
           const workouts = data.workouts || {};
+          setIsDayCompleted(data.isAllCompleted || false);
 
           const types = Object.values(workouts).map((workout) => workout.type);
           setUniqueWorkoutTypes(Array.from(new Set(types)));
@@ -148,10 +195,15 @@ export default function Main() {
                 history: exercise.history || [],
                 sets: exercise.sets || [],
                 isCompleted: exercise.isCompleted || false,
-                lastUpdated: exercise.sets?.length > 0 ? new Date() : 
-                  (exercise.history?.length > 0 ? 
-                    new Date(exercise.history[exercise.history.length - 1].date.seconds * 1000) : 
-                    new Date(0)),
+                lastUpdated:
+                  exercise.sets?.length > 0
+                    ? new Date()
+                    : exercise.history?.length > 0
+                    ? new Date(
+                        exercise.history[exercise.history.length - 1].date
+                          .seconds * 1000
+                      )
+                    : new Date(0),
                 icon: exercise.name.toLowerCase().includes("bench") ? (
                   <IoBarbell className="w-6 h-6" />
                 ) : (
@@ -163,13 +215,13 @@ export default function Main() {
               // Sort by completion status first
               if (!a.isCompleted && b.isCompleted) return -1;
               if (a.isCompleted && !b.isCompleted) return 1;
-              
+
               // Then by sets
               const aHasSets = a.sets?.length > 0;
               const bHasSets = b.sets?.length > 0;
               if (aHasSets && !bHasSets) return -1;
               if (!aHasSets && bHasSets) return 1;
-              
+
               return b.lastUpdated - a.lastUpdated;
             });
 
@@ -241,7 +293,7 @@ export default function Main() {
                   workoutType: selectedType,
                   createdAt: serverTimestamp(),
                   history: [],
-                  sets: []
+                  sets: [],
                 },
               },
             },
@@ -347,19 +399,22 @@ export default function Main() {
                 // Add new sets to history
                 const history = workout.exercises[exerciseKey].history || [];
                 history.push(historyEntry);
-                
+
                 // Keep only last 4 weeks of history
                 const fourWeeksAgo = new Date();
                 fourWeeksAgo.setDate(fourWeeksAgo.getDate() - 28);
-                
+
                 // Modified history filter to handle Firestore Timestamp
-                workout.exercises[exerciseKey].history = history.filter(entry => {
-                  const entryDate = entry.date instanceof Date 
-                    ? entry.date 
-                    : new Date(entry.date.seconds * 1000);
-                  return entryDate > fourWeeksAgo;
-                });
-                
+                workout.exercises[exerciseKey].history = history.filter(
+                  (entry) => {
+                    const entryDate =
+                      entry.date instanceof Date
+                        ? entry.date
+                        : new Date(entry.date.seconds * 1000);
+                    return entryDate > fourWeeksAgo;
+                  }
+                );
+
                 // Update current sets
                 workout.exercises[exerciseKey].sets = sets;
               }
@@ -402,14 +457,19 @@ export default function Main() {
           if (workout.type === exercise.type) {
             Object.keys(workout.exercises).forEach((exerciseKey) => {
               if (workout.exercises[exerciseKey].name === exercise.name) {
-                workout.exercises[exerciseKey].isCompleted = !exercise.isCompleted;
+                workout.exercises[exerciseKey].isCompleted =
+                  !exercise.isCompleted;
               }
             });
           }
         });
 
-        await setDoc(userWeekRef, { workouts });
-        toast.success(exercise.isCompleted ? "Marked as incomplete" : "Marked as complete");
+        // Update workouts and check day completion
+        await updateDayCompletion(workouts);
+
+        toast.success(
+          exercise.isCompleted ? "Marked as incomplete" : "Marked as complete"
+        );
       }
     } catch (error) {
       console.error("Error toggling completion:", error);
@@ -419,6 +479,37 @@ export default function Main() {
 
   return (
     <div className="flex flex-col gap-4">
+      {isDayCompleted && (
+        <div className="bg-gradient-to-r from-blue-500 to-blue-600 px-6 py-5 rounded-full shadow-xl">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <div className="p-3 bg-white/20 backdrop-blur-sm rounded-full text-white">
+                <IoTrophyOutline className="w-7 h-7" />
+              </div>
+              <div>
+                <div className="flex items-center gap-2">
+                  <h3 className="font-bold text-white text-lg">
+                    Today's Workout Complete
+                  </h3>
+                  <span className="text-xl">🎉</span>
+                </div>
+                <div className="flex items-center gap-2 mt-1">
+                  <div className="h-1.5 w-1.5 bg-white/50 rounded-full"></div>
+                  <p className="text-blue-50 text-sm">
+                    {workoutTypes.length} exercises completed
+                  </p>
+                </div>
+              </div>
+            </div>
+            <div className="hidden sm:flex items-center gap-2 text-blue-50 text-sm">
+              <IoCheckmarkCircle className="w-5 h-5" />
+              <span>
+                {new Date().toLocaleDateString("en-US", { weekday: "long" })}
+              </span>
+            </div>
+          </div>
+        </div>
+      )}
       <div className="flex flex-col sm:flex-row justify-between md:items-center gap-4">
         <div>
           {/* <h1 className="text-xl md:text-2xl font-poppins font-semibold">
@@ -459,23 +550,33 @@ export default function Main() {
             <div
               key={index}
               className={`flex flex-col bg-white rounded-3xl p-6 hover:shadow-lg transition-all w-full group shadow-md relative ${
-                exercise.isCompleted ? 'bg-gray-50 opacity-75' : 'hover:scale-[1.02] cursor-pointer'
+                exercise.isCompleted
+                  ? "bg-gray-50 opacity-75"
+                  : "hover:scale-[1.02] cursor-pointer"
               }`}
             >
-              <div 
-                onClick={() => !exercise.isCompleted && handleExerciseClick(exercise)}
+              <div
+                onClick={() =>
+                  !exercise.isCompleted && handleExerciseClick(exercise)
+                }
                 className="flex-1"
               >
                 <div className="flex items-center gap-4 mb-3">
-                  <div className={`p-3 rounded-xl ${
-                    exercise.isCompleted ? 'bg-gray-100 text-gray-400' : 'bg-blue-50 text-blue-500'
-                  }`}>
+                  <div
+                    className={`p-3 rounded-xl ${
+                      exercise.isCompleted
+                        ? "bg-gray-100 text-gray-400"
+                        : "bg-blue-50 text-blue-500"
+                    }`}
+                  >
                     {exercise.icon}
                   </div>
                   <div className="flex-1">
-                    <p className={`text-base sm:text-lg font-poppins font-semibold ${
-                      exercise.isCompleted ? 'text-gray-500' : 'text-gray-800'
-                    }`}>
+                    <p
+                      className={`text-base sm:text-lg font-poppins font-semibold ${
+                        exercise.isCompleted ? "text-gray-500" : "text-gray-800"
+                      }`}
+                    >
                       {exercise.name}
                     </p>
                     <p className="text-sm text-gray-500">{exercise.type}</p>
@@ -483,9 +584,9 @@ export default function Main() {
                   <button
                     onClick={(e) => handleToggleComplete(exercise, e)}
                     className={`p-2 rounded-full transition-colors ${
-                      exercise.isCompleted 
-                        ? 'text-green-500 hover:bg-green-50' 
-                        : 'text-gray-400 hover:bg-gray-50'
+                      exercise.isCompleted
+                        ? "text-green-500 hover:bg-green-50"
+                        : "text-gray-400 hover:bg-gray-50"
                     }`}
                   >
                     {exercise.isCompleted ? (
@@ -498,42 +599,64 @@ export default function Main() {
 
                 {/* Show latest set data if available */}
                 {exercise.sets && exercise.sets.length > 0 ? (
-                  <div className={`mt-2 space-y-1 p-3 rounded-xl ${
-                    exercise.isCompleted ? 'bg-gray-100' : 'bg-gray-50'
-                  }`}>
+                  <div
+                    className={`mt-2 space-y-1 p-3 rounded-xl ${
+                      exercise.isCompleted ? "bg-gray-100" : "bg-gray-50"
+                    }`}
+                  >
                     {exercise.sets.map((set, idx) => {
-                      const improvements = compareWithPreviousWorkout(exercise.sets, exercise.history);
+                      const improvements = compareWithPreviousWorkout(
+                        exercise.sets,
+                        exercise.history
+                      );
                       const improvement = improvements?.[idx];
-                      
+
                       return (
-                      <div key={idx} className="flex items-center justify-between text-sm">
-                        <span className={exercise.isCompleted ? 'text-gray-500' : 'text-gray-600'}>
-                          Set {idx + 1}
-                        </span>
+                        <div
+                          key={idx}
+                          className="flex items-center justify-between text-sm"
+                        >
+                          <span
+                            className={
+                              exercise.isCompleted
+                                ? "text-gray-500"
+                                : "text-gray-600"
+                            }
+                          >
+                            Set {idx + 1}
+                          </span>
                           <div className="flex items-center gap-2">
-                        <span className={`font-medium ${
-                          exercise.isCompleted ? 'text-gray-500' : 'text-blue-600'
-                        }`}>
-                          {set.weight}kg × {set.reps}
-                        </span>
+                            <span
+                              className={`font-medium ${
+                                exercise.isCompleted
+                                  ? "text-gray-500"
+                                  : "text-blue-600"
+                              }`}
+                            >
+                              {set.weight}kg × {set.reps}
+                            </span>
                             {improvement && !exercise.isCompleted && (
                               <div className="flex items-center text-xs">
                                 {improvement.isNew ? (
                                   <span className="text-green-500">NEW</span>
-                                ) : improvement.improved && (
-                                  <div className="flex flex-col items-end text-green-500">
-                                    {improvement.weightDiff > 0 && (
-                                      <span>+{improvement.weightDiff}kg</span>
-                                    )}
-                                    {improvement.repsDiff > 0 && (
-                                      <span>+{improvement.repsDiff} reps</span>
-                                    )}
-                                  </div>
+                                ) : (
+                                  improvement.improved && (
+                                    <div className="flex flex-col items-end text-green-500">
+                                      {improvement.weightDiff > 0 && (
+                                        <span>+{improvement.weightDiff}kg</span>
+                                      )}
+                                      {improvement.repsDiff > 0 && (
+                                        <span>
+                                          +{improvement.repsDiff} reps
+                                        </span>
+                                      )}
+                                    </div>
+                                  )
                                 )}
                               </div>
                             )}
                           </div>
-                      </div>
+                        </div>
                       );
                     })}
                   </div>
@@ -565,8 +688,6 @@ export default function Main() {
         )}
       </div>
 
-      
-
       <BottomDrawer
         isOpen={isDrawerOpen}
         onClose={() => {
@@ -575,7 +696,7 @@ export default function Main() {
           setDrawerType(null);
         }}
       >
-        {selectedExercise && drawerType === 'sets' ? (
+        {selectedExercise && drawerType === "sets" ? (
           <div className="flex flex-col gap-6">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
@@ -601,7 +722,7 @@ export default function Main() {
               />
             </div>
           </div>
-        ) : selectedExercise && drawerType === 'history' ? (
+        ) : selectedExercise && drawerType === "history" ? (
           <div className="flex flex-col gap-6">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
@@ -619,9 +740,11 @@ export default function Main() {
                 {selectedExercise.history?.map((entry, index) => (
                   <div key={index} className="bg-gray-50 p-4 rounded-xl">
                     <p className="text-sm text-gray-500 mb-2">
-                      {entry.date instanceof Date 
+                      {entry.date instanceof Date
                         ? entry.date.toLocaleDateString()
-                        : new Date(entry.date.seconds * 1000).toLocaleDateString()}
+                        : new Date(
+                            entry.date.seconds * 1000
+                          ).toLocaleDateString()}
                     </p>
                     <div className="space-y-1">
                       {entry.sets.map((set, idx) => (
@@ -632,7 +755,8 @@ export default function Main() {
                     </div>
                   </div>
                 ))}
-                {(!selectedExercise.history || selectedExercise.history.length === 0) && (
+                {(!selectedExercise.history ||
+                  selectedExercise.history.length === 0) && (
                   <div className="text-center py-8 text-gray-500">
                     No workout history available
                   </div>
@@ -641,41 +765,44 @@ export default function Main() {
             </div>
           </div>
         ) : (
-        <form onSubmit={handleSubmitNewWorkout} className="flex flex-col gap-6">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="p-3 bg-blue-50 rounded-xl">
-                <IoBarbell className="w-6 h-6 text-blue-500" />
-              </div>
-              <h1 className="text-xl md:text-2xl font-poppins font-semibold">
-                Add New Exercise
-              </h1>
-            </div>
-          </div>
-
-          <div>
-            <p className="text-sm font-poppins font-medium text-gray-700 mb-2">
-              Exercise Name
-            </p>
-            <div className="relative">
-              <input
-                type="text"
-                value={newWorkoutName}
-                onChange={(e) => setNewWorkoutName(e.target.value)}
-                placeholder="eg: Bench Press"
-                className="w-full p-3 pl-10 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              />
-              <IoFitnessOutline className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-            </div>
-          </div>
-
-          <button
-            type="submit"
-            className="w-full bg-blue-500 text-white py-3 rounded-full font-semibold hover:bg-blue-600 transition-colors"
+          <form
+            onSubmit={handleSubmitNewWorkout}
+            className="flex flex-col gap-6"
           >
-            Add Exercise
-          </button>
-        </form>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="p-3 bg-blue-50 rounded-xl">
+                  <IoBarbell className="w-6 h-6 text-blue-500" />
+                </div>
+                <h1 className="text-xl md:text-2xl font-poppins font-semibold">
+                  Add New Exercise
+                </h1>
+              </div>
+            </div>
+
+            <div>
+              <p className="text-sm font-poppins font-medium text-gray-700 mb-2">
+                Exercise Name
+              </p>
+              <div className="relative">
+                <input
+                  type="text"
+                  value={newWorkoutName}
+                  onChange={(e) => setNewWorkoutName(e.target.value)}
+                  placeholder="eg: Bench Press"
+                  className="w-full p-3 pl-10 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                />
+                <IoFitnessOutline className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+              </div>
+            </div>
+
+            <button
+              type="submit"
+              className="w-full bg-blue-500 text-white py-3 rounded-full font-semibold hover:bg-blue-600 transition-colors"
+            >
+              Add Exercise
+            </button>
+          </form>
         )}
       </BottomDrawer>
     </div>
