@@ -7,7 +7,6 @@ import { db, auth } from '@/lib/firebase';
 import { doc, getDoc, updateDoc, deleteDoc, arrayRemove, arrayUnion, onSnapshot, collection, query, where } from 'firebase/firestore';
 import { onAuthStateChanged } from 'firebase/auth';
 import DietDrawer from './DietDrawer';
-import toast from 'react-hot-toast';
 import DietCardSkeleton from './DietCardSkeleton';
 
 const DietCard = ({ meal, userId, onUpdate }) => {
@@ -52,7 +51,6 @@ const DietCard = ({ meal, userId, onUpdate }) => {
       });
       
       onUpdate();
-      toast.success('Meal marked as completed!');
       setShowCompleteConfirm(false);
       
       setTimeout(() => {
@@ -60,7 +58,6 @@ const DietCard = ({ meal, userId, onUpdate }) => {
       }, 1000);
     } catch (error) {
       console.error('Error completing meal:', error);
-      toast.error('Failed to complete meal');
       setIsCompletingAnimation(false);
     }
   };
@@ -72,11 +69,9 @@ const DietCard = ({ meal, userId, onUpdate }) => {
         diet: arrayRemove(meal)
       });
       onUpdate();
-      toast.success('Meal deleted successfully');
       setShowDeleteConfirm(false);
     } catch (error) {
       console.error('Error deleting meal:', error);
-      toast.error('Failed to delete meal');
     }
   };
 
@@ -376,14 +371,6 @@ const DietCardList = () => {
             'dailyStats.targetReachedAt': new Date().toISOString()
           } : {})
         });
-
-        // If target is newly reached, show celebration
-        if (targetReached && !wasTargetReached) {
-          toast.success('Congratulations! You have reached your daily calorie target! 🎉', {
-            duration: 5000,
-            icon: '🎯'
-          });
-        }
         
         setDailyStats(prev => ({
           ...prev,
