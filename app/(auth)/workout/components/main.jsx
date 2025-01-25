@@ -55,6 +55,7 @@ export default function Main() {
   };
 
   const days = [
+    { short: 'Su', full: 'sunday' },
     { short: 'M', full: 'monday' },
     { short: 'T', full: 'tuesday' },
     { short: 'W', full: 'wednesday' },
@@ -65,7 +66,7 @@ export default function Main() {
 
   useEffect(() => {
     const today = new Date().getDay();
-    setSelectedDay(dayMap[today === 0 ? 1 : today]);
+    setSelectedDay(dayMap[today]);
   }, []);
 
   useEffect(() => {
