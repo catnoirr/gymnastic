@@ -15,7 +15,7 @@ export default function main() {
           <Reminder />
           <Savings />
           <Calender />
-        </div>
+        </div>  
         <Name />
       </div>
       <div className="flex flex-col md:flex-row gap-4">
