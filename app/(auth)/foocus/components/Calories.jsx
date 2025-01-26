@@ -1,11 +1,12 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { FiEdit } from "react-icons/fi";
+import { FiEdit, FiPlus, FiRefreshCw } from "react-icons/fi";
 import { IoNutrition } from "react-icons/io5";
 import { db, auth } from '@/lib/firebase';
 import { doc, getDoc, updateDoc, onSnapshot } from 'firebase/firestore';
 import { onAuthStateChanged } from 'firebase/auth';
+import BottomDrawer from "../../workout/components/BottomDrawer";
 
 const CaloriesSkeleton = () => (
   <div className="bg-white rounded-3xl shadow-md p-6 relative overflow-hidden animate-pulse">
@@ -69,6 +70,8 @@ const Calories = () => {
     date: new Date().toISOString().split('T')[0],
     isTargetReached: false
   });
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const [newTarget, setNewTarget] = useState("");
 
   // Auth listener
   useEffect(() => {
@@ -167,15 +170,17 @@ const Calories = () => {
   const bubblePosition = calculateBubblePosition();
 
   const handleChangeGoal = async () => {
-    if (!userId) return;
+    if (!userId || !newTarget) return;
     
-    const newGoal = prompt("Enter new calorie goal:", dailyStats.targetCalories);
-    if (newGoal && !isNaN(newGoal) && Number(newGoal) > 0) {
+    const targetValue = Number(newTarget);
+    if (!isNaN(targetValue) && targetValue > 0) {
       const userRef = doc(db, 'users', userId);
       try {
         await updateDoc(userRef, {
-          'dailyStats.targetCalories': Number(newGoal)
+          'dailyStats.targetCalories': targetValue
         });
+        setIsDrawerOpen(false);
+        setNewTarget("");
       } catch (error) {
         console.error('Error updating calorie goal:', error);
       }
@@ -233,11 +238,25 @@ const Calories = () => {
 
           <div className="space-y-1">
             <p className="text-sm text-gray-500">Target</p>
-            <div className="flex items-baseline gap-1">
-              <span className="text-3xl font-bold text-gray-800">
-                {dailyStats.targetCalories}
-              </span>
-              <span className="text-sm text-gray-500">kcal</span>
+            <div className="flex items-center gap-3">
+              <div className="flex items-baseline gap-1">
+                <span className="text-3xl font-bold text-gray-800">
+                  {dailyStats.targetCalories}
+                </span>
+                <span className="text-sm text-gray-500">kcal</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => {
+                    setNewTarget(dailyStats.targetCalories.toString());
+                    setIsDrawerOpen(true);
+                  }}
+                  className="p-1.5 hover:bg-gray-100 rounded-full transition-colors"
+                  title="Edit target calories"
+                >
+                  <FiPlus className="w-4 h-4 text-gray-500" />
+                </button>
+              </div>
             </div>
           </div>
 
@@ -363,6 +382,48 @@ const Calories = () => {
           </div>
         </div>
       </div>
+
+      {/* Bottom Drawer for Target Calories */}
+      <BottomDrawer
+        isOpen={isDrawerOpen}
+        onClose={() => {
+          setIsDrawerOpen(false);
+          setNewTarget("");
+        }}
+      >
+        <div className="space-y-6">
+          <div>
+            <h2 className="text-xl font-bold text-gray-800 mb-2">Update Calorie Target</h2>
+            <p className="text-sm text-gray-500">Set your daily calorie target to track your nutrition goals.</p>
+          </div>
+
+          <div className="space-y-4">
+            <div>
+              <label htmlFor="targetCalories" className="block text-sm font-medium text-gray-700 mb-1">
+                Target Calories
+              </label>
+              <input
+                id="targetCalories"
+                type="number"
+                value={newTarget}
+                onChange={(e) => setNewTarget(e.target.value)}
+                placeholder="Enter target calories"
+                className="w-full p-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+
+            <button
+              onClick={handleChangeGoal}
+              disabled={!newTarget || isNaN(Number(newTarget)) || Number(newTarget) <= 0}
+              className="w-full py-3 px-4 bg-blue-600 text-white rounded-xl font-medium
+                hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2
+                disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            >
+              Update Target
+            </button>
+          </div>
+        </div>
+      </BottomDrawer>
     </div>
   );
 };

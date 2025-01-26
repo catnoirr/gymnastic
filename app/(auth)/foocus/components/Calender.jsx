@@ -1,8 +1,8 @@
 "use client";
 import React, { useState, useMemo, useEffect } from "react";
 import { MdChevronLeft, MdChevronRight } from "react-icons/md";
-import { db, auth } from '@/lib/firebase';
-import { doc, onSnapshot, collection, getDocs } from 'firebase/firestore';
+import { db, auth } from "@/lib/firebase";
+import { doc, onSnapshot, collection, getDocs } from "firebase/firestore";
 
 const MONTH_NAMES = [
   "January",
@@ -28,7 +28,9 @@ const Calendar = () => {
 
   const getLocalDateString = (date) => {
     const d = new Date(date);
-    return new Date(d.getFullYear(), d.getMonth(), d.getDate()).toISOString().split('T')[0];
+    return new Date(d.getFullYear(), d.getMonth(), d.getDate())
+      .toISOString()
+      .split("T")[0];
   };
 
   useEffect(() => {
@@ -37,7 +39,7 @@ const Calendar = () => {
 
     const fetchData = async () => {
       try {
-        const userRef = doc(db, 'users', user.uid);
+        const userRef = doc(db, "users", user.uid);
         const unsubscribe = onSnapshot(userRef, (doc) => {
           if (doc.exists()) {
             const userData = doc.data();
@@ -97,16 +99,27 @@ const Calendar = () => {
       const currentDayDate = getLocalDateString(
         new Date(currentDate.getFullYear(), currentDate.getMonth(), day)
       );
-      
-      const historyEntry = calorieHistory.find(entry => 
-        getLocalDateString(new Date(entry.date)) === currentDayDate
+
+      const historyEntry = calorieHistory.find(
+        (entry) => getLocalDateString(new Date(entry.date)) === currentDayDate
       );
 
       const workoutEntry = workoutHistory[currentDayDate];
-      const workoutIncomplete = workoutEntry && !workoutEntry.isCompleted && currentDayDate < currentDayString;
-      
-      const dateToCheck = new Date(currentDate.getFullYear(), currentDate.getMonth(), day);
-      const todayDate = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+      const workoutIncomplete =
+        workoutEntry &&
+        !workoutEntry.isCompleted &&
+        currentDayDate < currentDayString;
+
+      const dateToCheck = new Date(
+        currentDate.getFullYear(),
+        currentDate.getMonth(),
+        day
+      );
+      const todayDate = new Date(
+        today.getFullYear(),
+        today.getMonth(),
+        today.getDate()
+      );
       const shouldShowWorkoutStatus = dateToCheck < todayDate;
 
       days.push(
@@ -114,7 +127,7 @@ const Calendar = () => {
           key={day}
           className={`
             aspect-square text-center p-0.5 relative group cursor-pointer
-            hover:bg-gray-700 transition-colors duration-200
+            hover:bg-gray-700 hover:rounded-full transition-all duration-200
             ${isToday ? "text-white" : "text-gray-300"}
           `}
         >
@@ -122,25 +135,50 @@ const Calendar = () => {
             className={`
               w-6 h-6 text-sm flex items-center justify-center mx-auto
               ${isToday ? "bg-blue-500 rounded-full" : ""}
-              ${shouldShowWorkoutStatus && workoutIncomplete ? "bg-orange-500 rounded-full" : ""}
-              ${historyEntry && !historyEntry.isTargetReached ? "bg-red-500 rounded-full" : ""}
+              ${
+                shouldShowWorkoutStatus && workoutIncomplete
+                  ? "bg-orange-500 rounded-full"
+                  : ""
+              }
+              ${
+                historyEntry && !historyEntry.isTargetReached
+                  ? "bg-red-500 rounded-full"
+                  : ""
+              }
             `}
           >
             {day}
           </span>
 
-          <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 bg-gray-900 text-white text-xs rounded-lg 
-            opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap pointer-events-none z-10
+          <div
+            className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 bg-gray-900 text-white text-xs rounded-lg 
+            opacity-0 group-hover:opacity-100 whitespace-nowrap pointer-events-none z-10
             before:content-[''] before:absolute before:top-full before:left-1/2 before:-translate-x-1/2 
-            before:border-4 before:border-transparent before:border-t-gray-900">
-            {shouldShowWorkoutStatus && workoutIncomplete ? "Workout Incomplete" : 
-              historyEntry ? (
-                historyEntry.isTargetReached ? 
-                  "Target Reached ✓" : 
-                  "Target Not Reached ✗"
-              ) : (
-                isToday ? "Today" : "No Data"
-              )}
+            before:border-4 before:border-transparent before:border-t-gray-900
+            
+            /* Hide on small screens */
+            hidden md:block
+            
+            /* Add responsive positioning */
+            md:mb-3 transform
+            group-hover:scale-100 scale-0 transition-transform duration-200
+            
+            /* Handle overflow at screen edges */
+            [.calendar-grid:first-child_&]:left-0 [.calendar-grid:first-child_&]:-translate-x-0
+            [.calendar-grid:last-child_&]:left-auto [.calendar-grid:last-child_&]:right-0 [.calendar-grid:last-child_&]:translate-x-0
+            
+            /* Desktop optimization */
+            md:text-xs md:px-3 md:py-1.5"
+          >
+            {shouldShowWorkoutStatus && workoutIncomplete
+              ? "Workout Incomplete"
+              : historyEntry
+              ? historyEntry.isTargetReached
+                ? "Target Reached ✓"
+                : "Target Not Reached ✗"
+              : isToday
+              ? "Today"
+              : "No Data"}
           </div>
         </div>
       );
@@ -188,7 +226,9 @@ const Calendar = () => {
       </div>
 
       {/* Calendar grid */}
-      <div className="grid grid-cols-7 gap-1">{generateCalendarDays}</div>
+      <div className="calendar-grid grid grid-cols-7 gap-1">
+        {generateCalendarDays}
+      </div>
 
       {/* Legend */}
       <div className="mt-4 flex flex-wrap gap-3 text-xs justify-center sm:justify-start">

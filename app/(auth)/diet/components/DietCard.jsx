@@ -270,7 +270,7 @@ const DietCardList = () => {
   const [dailyStats, setDailyStats] = useState({
     targetCalories: 3000,
     consumedCalories: 0,
-    date: new Date().toISOString().split('T')[0], // Today's date
+    date: new Date().toISOString().split('T')[0],
     isTargetReached: false
   });
 
@@ -286,6 +286,62 @@ const DietCardList = () => {
 
     return () => unsubscribe();
   }, []);
+
+  // Reset meals at midnight
+  useEffect(() => {
+    if (!userId) return;
+
+    const userRef = doc(db, 'users', userId);
+    const today = new Date().toISOString().split('T')[0];
+
+    const resetMeals = async () => {
+      try {
+        const docSnap = await getDoc(userRef);
+        if (docSnap.exists()) {
+          const userData = docSnap.data();
+          const meals = userData.diet || [];
+
+          // If any meal was completed yesterday, reset it
+          const hasCompletedMeals = meals.some(meal => meal.completed && meal.completedDate !== today);
+          
+          if (hasCompletedMeals) {
+            // Reset completion status for all meals
+            const resetMeals = meals.map(meal => ({
+              ...meal,
+              completed: false,
+              completedDate: null
+            }));
+
+            // Update meals in Firebase
+            await updateDoc(userRef, {
+              diet: resetMeals,
+              dailyStats: {
+                targetCalories: userData.dailyStats?.targetCalories || 3000,
+                consumedCalories: 0,
+                date: today,
+                isTargetReached: false
+              }
+            });
+          }
+        }
+      } catch (error) {
+        console.error('Error resetting meals:', error);
+      }
+    };
+
+    // Check and reset at component mount
+    resetMeals();
+
+    // Set up interval to check for date change
+    const interval = setInterval(() => {
+      const now = new Date();
+      if (now.getHours() === 0 && now.getMinutes() === 0) {
+        resetMeals();
+      }
+    }, 60000); // Check every minute
+
+    return () => clearInterval(interval);
+  }, [userId]);
 
   // Initialize or get daily stats
   useEffect(() => {
