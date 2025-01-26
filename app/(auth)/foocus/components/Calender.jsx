@@ -25,6 +25,7 @@ const Calendar = () => {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [calorieHistory, setCalorieHistory] = useState([]);
   const [workoutHistory, setWorkoutHistory] = useState({});
+  const [waterHistory, setWaterHistory] = useState([]);
 
   const getLocalDateString = (date) => {
     const d = new Date(date);
@@ -45,6 +46,7 @@ const Calendar = () => {
             const userData = doc.data();
             setCalorieHistory(userData.calorieHistory || []);
             setWorkoutHistory(userData.workoutHistory || {});
+            setWaterHistory(userData.waterHistory || []);
           }
         });
 
@@ -110,6 +112,11 @@ const Calendar = () => {
         !workoutEntry.isCompleted &&
         currentDayDate < currentDayString;
 
+      const waterEntry = waterHistory.find(
+        entry => getLocalDateString(new Date(entry.date)) === currentDayDate
+      );
+      const waterIncomplete = waterEntry && waterEntry.currentLevel < waterEntry.targetLevel;
+
       const dateToCheck = new Date(
         currentDate.getFullYear(),
         currentDate.getMonth(),
@@ -120,7 +127,7 @@ const Calendar = () => {
         today.getMonth(),
         today.getDate()
       );
-      const shouldShowWorkoutStatus = dateToCheck < todayDate;
+      const shouldShowStatus = dateToCheck < todayDate;
 
       days.push(
         <div
@@ -135,16 +142,9 @@ const Calendar = () => {
             className={`
               w-6 h-6 text-sm flex items-center justify-center mx-auto
               ${isToday ? "bg-blue-500 rounded-full" : ""}
-              ${
-                shouldShowWorkoutStatus && workoutIncomplete
-                  ? "bg-orange-500 rounded-full"
-                  : ""
-              }
-              ${
-                historyEntry && !historyEntry.isTargetReached
-                  ? "bg-red-500 rounded-full"
-                  : ""
-              }
+              ${shouldShowStatus && workoutIncomplete ? "bg-orange-500 rounded-full" : ""}
+              ${historyEntry && !historyEntry.isTargetReached ? "bg-red-500 rounded-full" : ""}
+              ${shouldShowStatus && waterIncomplete ? "bg-cyan-500 rounded-full" : ""}
             `}
           >
             {day}
@@ -170,22 +170,32 @@ const Calendar = () => {
             /* Desktop optimization */
             md:text-xs md:px-3 md:py-1.5"
           >
-            {shouldShowWorkoutStatus && workoutIncomplete
-              ? "Workout Incomplete"
-              : historyEntry
-              ? historyEntry.isTargetReached
-                ? "Target Reached ✓"
-                : "Target Not Reached ✗"
-              : isToday
-              ? "Today"
-              : "No Data"}
+            {shouldShowStatus ? (
+              <div className="space-y-1">
+                {workoutIncomplete && <div>Workout Incomplete</div>}
+                {historyEntry && (
+                  <div>
+                    Calories: {historyEntry.isTargetReached ? "✓" : "✗"}
+                  </div>
+                )}
+                {waterEntry && (
+                  <div>
+                    Water: {waterEntry.currentLevel}/{waterEntry.targetLevel} {waterEntry.currentLevel >= waterEntry.targetLevel ? "✓" : "✗"}
+                  </div>
+                )}
+              </div>
+            ) : isToday ? (
+              "Today"
+            ) : (
+              "No Data"
+            )}
           </div>
         </div>
       );
     }
 
     return days;
-  }, [currentDate, daysInMonth, firstDay, calorieHistory, workoutHistory]);
+  }, [currentDate, daysInMonth, firstDay, calorieHistory, workoutHistory, waterHistory]);
 
   return (
     <div
@@ -230,11 +240,12 @@ const Calendar = () => {
         {generateCalendarDays}
       </div>
 
-      {/* Legend */}
+      {/* Updated Legend */}
       <div className="mt-4 flex flex-wrap gap-3 text-xs justify-center sm:justify-start">
         {[
           { color: "bg-red-500", label: "Calorie Target Not Met" },
           { color: "bg-orange-500", label: "Workout Incomplete" },
+          { color: "bg-cyan-500", label: "Water Target Not Met" },
           { color: "bg-blue-500", label: "Current Day" },
         ].map(({ color, label }) => (
           <div key={label} className="flex items-center gap-1.5">

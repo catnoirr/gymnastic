@@ -3,11 +3,12 @@ import Reminder from "./Reminder";
 import Savings from "./Savings";
 import Calories from "./Calories";
 import Weight from "./Weight";
-import Habits from "./Habbits";
+import Habbits from "./Habbits";
 import Calender from "./Calender";
 import Name from "./name";
+import WaterLevelIndicator from "./WaterLevelIndicator";
 
-export default function main() {
+export default function Main() {
   return (
     <div className="flex flex-col gap-4">
       <div className="flex flex-col md:flex-row gap-4">
@@ -21,9 +22,12 @@ export default function main() {
       <div className="flex flex-col md:flex-row gap-4">
         <div className="w-full flex flex-col gap-4">
           <Calories />
-          <Weight />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <Weight />
+            <WaterLevelIndicator />
+          </div>
         </div>
-        <Habits />
+        <Habbits />
       </div>
     </div>
   );
