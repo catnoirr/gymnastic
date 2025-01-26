@@ -6,7 +6,8 @@ import {
   FaRunning,
   FaSignOutAlt,
   FaDumbbell,
-  FaUser
+  FaUser,
+  FaChartBar
 } from "react-icons/fa";
 import { auth } from "@/lib/firebase";
 import { signOut } from "firebase/auth";
@@ -181,6 +182,22 @@ const BottomNavBar = () => {
                   <div className="flex-1 min-w-0 text-left">
                     <p className="text-sm font-semibold text-gray-700 group-hover:text-blue-600 transition-colors">Edit Profile</p>
                     <p className="text-xs text-gray-500 truncate group-hover:text-gray-600">Update your information</p>
+                  </div>
+                </button>
+
+                <button
+                  onClick={() => {
+                    router.push('/analytics');
+                    setShowPopover(false);
+                  }}
+                  className="w-full flex items-center gap-3.5 p-3 hover:bg-purple-50/50 rounded-xl transition-all duration-200 group active:scale-98 mt-1"
+                >
+                  <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-purple-100 to-purple-50 flex items-center justify-center group-hover:shadow-md transition-all duration-300 border border-purple-200/30">
+                    <FaChartBar className="text-purple-600 transition-transform duration-300 group-hover:scale-110" size={18} />
+                  </div>
+                  <div className="flex-1 min-w-0 text-left">
+                    <p className="text-sm font-semibold text-gray-700 group-hover:text-purple-600 transition-colors">Analytics</p>
+                    <p className="text-xs text-gray-500 truncate group-hover:text-gray-600">View your progress</p>
                   </div>
                 </button>
                 

@@ -43,24 +43,14 @@ const Sidebar = () => {
 
   const utilityTabs = [
     {
-      id: "notifications",
-      icon: <FaBell />,
-      tooltip: "Notifications",
-      route: "/notifications",
+      id: "analytics",
+      icon: <FaChartBar />,
+      tooltip: "Analytics",
+      route: "/analytics",
     },
-    // {
-    //   id: "settings",
-    //   icon: <FaCog />,
-    //   tooltip: "Settings",
-    //   route: "/settings",
-    // },
   ];
 
-  const [activeTab, setActiveTab] = useState(() => {
-    const route = pathname;
-    const tab = tabs.find((t) => t.route === route);
-    return tab ? tab.id : "home";
-  });
+  const [activeTab, setActiveTab] = useState('home');
 
   useEffect(() => {
     const currentTab = [...tabs, ...utilityTabs].find(
