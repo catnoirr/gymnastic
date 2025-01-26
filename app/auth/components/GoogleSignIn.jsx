@@ -1,7 +1,7 @@
 'use client'
 import { GoogleAuthProvider, signInWithPopup } from 'firebase/auth'
 import { auth, db } from '@/lib/firebase'
-import { doc, setDoc } from 'firebase/firestore'
+import { doc, setDoc, getDoc } from 'firebase/firestore'
 import { setCookie } from '@/lib/cookies'
 import { useState } from 'react'
 
@@ -21,8 +21,8 @@ export default function GoogleSignIn({ onError }) {
       const result = await signInWithPopup(auth, provider)
       
       if (result.user) {
-        await saveUserData(result.user)
-        window.location.href = '/foocus'
+        const isNewUser = await saveUserData(result.user)
+        window.location.href = isNewUser ? '/personalise' : '/foocus'
       }
     } catch (error) {
       console.error('Google sign in error:', error)
@@ -37,16 +37,24 @@ export default function GoogleSignIn({ onError }) {
 
   const saveUserData = async (user) => {
     try {
+      // Check if user document already exists
+      const userDoc = await getDoc(doc(db, 'users', user.uid))
+      const isNewUser = !userDoc.exists()
+
       await setDoc(doc(db, 'users', user.uid), {
         email: user.email,
         name: user.displayName || '',
-        createdAt: new Date().toISOString(),
+        createdAt: isNewUser ? new Date().toISOString() : userDoc.data().createdAt,
+        isProfileComplete: false
       }, { merge: true })
 
       const token = await user.getIdToken()
       setCookie('authToken', token, 7)
+      
+      return isNewUser
     } catch (error) {
       console.error('Error saving user data:', error)
+      return false
     }
   }
 

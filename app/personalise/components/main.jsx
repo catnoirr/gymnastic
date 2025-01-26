@@ -1,6 +1,8 @@
 "use client";
 import { useState } from "react";
 import { motion } from "framer-motion";
+import { auth, db } from '@/lib/firebase';
+import { doc, updateDoc, setDoc } from 'firebase/firestore';
 
 export default function PersonaliseForm() {
   const [step, setStep] = useState(1);
@@ -26,7 +28,39 @@ export default function PersonaliseForm() {
   };
 
   const handleSubmit = async () => {
-    console.log("Form submitted:", formData);
+    try {
+      const userId = auth.currentUser?.uid;
+      if (!userId) {
+        console.error('No user found');
+        return;
+      }
+
+      // Update user profile
+      const userRef = doc(db, 'users', userId);
+      await updateDoc(userRef, {
+        gender: formData.gender,
+        weight: Number(formData.weight),
+        height: Number(formData.height),
+        isProfileComplete: true,
+      });
+
+      // Set initial weight in progress collection
+      const weightRef = doc(db, 'users', userId, 'progress', 'weight');
+      await setDoc(weightRef, {
+        currentWeight: Number(formData.weight),
+        startWeight: Number(formData.weight),
+        targetWeight: Number(formData.weight), // Set same as current initially
+        history: [{
+          weight: Number(formData.weight),
+          date: new Date().toISOString()
+        }],
+        updatedAt: new Date().toISOString()
+      });
+
+      window.location.href = '/foocus';
+    } catch (error) {
+      console.error('Error saving user data:', error);
+    }
   };
 
   return (

@@ -134,7 +134,9 @@ const Weight = () => {
       if (!userId) return;
       
       try {
+        // First check the weight progress document
         const weightDoc = await getDoc(doc(db, "users", userId, "progress", "weight"));
+        
         if (weightDoc.exists()) {
           const data = weightDoc.data();
           setCurrentWeight(data.currentWeight);
@@ -158,6 +160,31 @@ const Weight = () => {
             const firstEntry = monthEntries[monthEntries.length - 1];
             const lastEntry = monthEntries[0];
             setMonthlyGain(lastEntry.weight - firstEntry.weight);
+          }
+        } else {
+          // If no weight progress document exists, check user profile for initial weight
+          const userDoc = await getDoc(doc(db, "users", userId));
+          if (userDoc.exists() && userDoc.data().weight) {
+            const initialWeight = userDoc.data().weight;
+            // Create initial weight progress document
+            await setDoc(doc(db, "users", userId, "progress", "weight"), {
+              currentWeight: initialWeight,
+              startWeight: initialWeight,
+              targetWeight: initialWeight,
+              history: [{
+                weight: initialWeight,
+                date: new Date().toISOString()
+              }],
+              updatedAt: new Date().toISOString()
+            });
+            
+            setCurrentWeight(initialWeight);
+            setStartWeight(initialWeight);
+            setTargetWeight(initialWeight);
+            setWeightHistory([{
+              weight: initialWeight,
+              date: new Date().toISOString()
+            }]);
           }
         }
       } catch (error) {

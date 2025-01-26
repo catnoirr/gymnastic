@@ -63,7 +63,11 @@ export default function EmailAuth({ onBack }) {
 
       if (userCredential.user) {
         await saveUserData(userCredential.user)
-        window.location.href = '/foocus'
+        if (isSignUp) {
+          window.location.href = '/personalise'
+        } else {
+          window.location.href = '/foocus'
+        }
       }
     } catch (error) {
       // Handle specific Firebase auth errors

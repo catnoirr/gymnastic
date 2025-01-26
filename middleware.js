@@ -16,6 +16,7 @@ export const config = {
     '/today-workout/:path*',
     '/reminder/:path*',
     '/auth/:path*',
+    '/personalise/:path*',
   ]
 };
 
