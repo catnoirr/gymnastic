@@ -17,6 +17,7 @@ export const config = {
     '/reminder/:path*',
     '/auth/:path*',
     '/personalise/:path*',
+    '/analytics/:path*',
   ]
 };
 

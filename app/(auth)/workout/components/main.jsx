@@ -29,6 +29,20 @@ const WorkoutTypeSkeleton = () => (
   </div>
 );
 
+// Full page loading skeleton
+const PageSkeleton = () => (
+  <div className="flex flex-col gap-4">
+    <div className="flex flex-col sm:flex-row justify-between md:items-center gap-4">
+      <WorkoutTypeSkeleton />
+    </div>
+    <div className="space-y-4">
+      {[1, 2, 3].map((i) => (
+        <WorkoutSkeleton key={i} />
+      ))}
+    </div>
+  </div>
+);
+
 export default function Main() {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [selectedExercise, setSelectedExercise] = useState(null);
@@ -38,6 +52,20 @@ export default function Main() {
   const [uniqueWorkoutTypes, setUniqueWorkoutTypes] = useState([]);
   const [selectedType, setSelectedType] = useState('');
   const [newWorkoutName, setNewWorkoutName] = useState('');
+  const [authChecked, setAuthChecked] = useState(false);
+
+  // Add auth state listener
+  useEffect(() => {
+    const unsubscribe = auth.onAuthStateChanged((user) => {
+      setAuthChecked(true);
+      if (!user) {
+        setLoading(false);
+        window.location.href = '/login';
+      }
+    });
+
+    return () => unsubscribe();
+  }, []);
 
   const handleExerciseClick = (exercise) => {
     setSelectedExercise(exercise);
@@ -65,17 +93,19 @@ export default function Main() {
   ];
 
   useEffect(() => {
+    if (!authChecked) return;
+    
     const today = new Date().getDay();
     setSelectedDay(dayMap[today]);
-  }, []);
+  }, [authChecked]);
 
   useEffect(() => {
-    if (!selectedDay) return;
+    if (!authChecked || !selectedDay) return;
 
     setLoading(true);
     const userId = auth.currentUser?.uid;
     if (!userId) {
-      toast.error("Please login first");
+      setLoading(false);
       return;
     }
 
@@ -116,9 +146,8 @@ export default function Main() {
       }
     );
 
-    // Cleanup subscription on unmount
     return () => unsubscribe();
-  }, [selectedDay]);
+  }, [selectedDay, authChecked]);
 
   const handleAddWorkout = async (type) => {
     setSelectedType(type);
@@ -229,6 +258,10 @@ export default function Main() {
       toast.error("Failed to delete exercise");
     }
   };
+
+  if (!authChecked || loading) {
+    return <PageSkeleton />;
+  }
 
   return (
     <div className="flex flex-col gap-4">
