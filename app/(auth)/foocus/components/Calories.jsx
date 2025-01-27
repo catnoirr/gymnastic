@@ -9,7 +9,7 @@ import { onAuthStateChanged } from 'firebase/auth';
 import BottomDrawer from "../../workout/components/BottomDrawer";
 
 const CaloriesSkeleton = () => (
-  <div className="bg-white rounded-3xl shadow-md p-6 relative overflow-hidden animate-pulse">
+  <div className="bg-white rounded-3xl shadow-md p-6 relative overflow-hidden max-w-full">
     {/* Background Gradients */}
     <div className="absolute inset-0 pointer-events-none">
       <div className="absolute -right-32 -top-32 w-96 h-96 bg-gray-50/50 rounded-full blur-3xl"></div>
@@ -48,7 +48,7 @@ const CaloriesSkeleton = () => (
       </div>
 
       {/* Progress Ring Skeleton */}
-      <div className="relative w-48 h-48">
+      <div className="relative w-40 h-40 md:w-48 md:h-48 flex-shrink-0">
         <div className="w-full h-full rounded-full border-[12px] border-gray-100"></div>
         <div className="absolute inset-0 flex items-center justify-center">
           <div className="text-center">
@@ -188,7 +188,7 @@ const Calories = () => {
   };
 
   return (
-    <div className="bg-white rounded-3xl shadow-md p-6 relative overflow-hidden">
+    <div className="bg-white rounded-3xl shadow-md p-6 relative overflow-hidden max-w-full">
       {/* Background Gradients */}
       <div className="absolute inset-0 pointer-events-none">
         <div className="absolute -right-32 -top-32 w-96 h-96 bg-green-50/50 rounded-full blur-3xl"></div>
@@ -225,7 +225,7 @@ const Calories = () => {
       {/* Main Content */}
       <div className="relative flex items-center justify-between">
         {/* Stats Section */}
-        <div className="flex flex-col gap-4 ">
+        <div className="flex flex-col gap-4">
           <div className="space-y-1">
             <p className="text-sm text-gray-500">Current</p>
             <div className="flex items-baseline gap-1">
@@ -279,13 +279,13 @@ const Calories = () => {
         </div>
 
         {/* Progress Ring */}
-        <div className="relative w-48 h-48">
+        <div className="relative w-40 h-40 md:w-48 md:h-48 flex-shrink-0">
           <svg className="w-full h-full transform -rotate-[100deg]">
             {/* Background circle */}
             <circle
-              cx="96"
-              cy="96"
-              r={radius}
+              cx="80"
+              cy="80"
+              r="55"
               className="stroke-gray-100"
               strokeWidth="12"
               fill="none"
@@ -294,9 +294,9 @@ const Calories = () => {
             />
             {/* Progress circle */}
             <circle
-              cx="96"
-              cy="96"
-              r={radius}
+              cx="80"
+              cy="80"
+              r="55"
               className={`${
                 dailyStats.isTargetReached 
                   ? 'stroke-green-400' 
@@ -315,10 +315,10 @@ const Calories = () => {
 
           {/* Bubble Indicator */}
           <div 
-            className="absolute transition-all duration-500 scale-90 sm:scale-100"
+            className="absolute transition-all duration-500"
             style={{
-              left: `${bubblePosition.x}px`,
-              top: `${bubblePosition.y}px`,
+              left: `${(bubblePosition.x / 96) * 80}px`,
+              top: `${(bubblePosition.y / 96) * 80}px`,
               transform: 'translate(-50%, -50%)'
             }}
           >
