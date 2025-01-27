@@ -18,6 +18,8 @@ import { auth } from "@/lib/firebase";
 import { signOut } from "firebase/auth";
 import { deleteCookie } from "@/lib/cookies";
 import ProfileEditDrawer from './ProfileEditDrawer';
+import { doc, onSnapshot } from "firebase/firestore";
+import { db } from "@/lib/firebase";
 
 const Sidebar = () => {
   const router = useRouter();
@@ -104,13 +106,27 @@ const Sidebar = () => {
 
   // Update user data when auth changes
   useEffect(() => {
-    const user = auth.currentUser;
-    if (user) {
-      setUserData({
-        displayName: user.displayName || 'User',
-        email: user.email || ''
-      });
-    }
+    const unsubscribe = auth.onAuthStateChanged((user) => {
+      if (user) {
+        const userRef = doc(db, 'users', user.uid);
+        onSnapshot(userRef, (doc) => {
+          if (doc.exists()) {
+            const data = doc.data();
+            setUserData({
+              displayName: data.name || user.displayName || 'User',
+              email: user.email || ''
+            });
+          } else {
+            setUserData({
+              displayName: user.displayName || 'User',
+              email: user.email || ''
+            });
+          }
+        });
+      }
+    });
+
+    return () => unsubscribe();
   }, []);
 
   // Add hover timer ref
