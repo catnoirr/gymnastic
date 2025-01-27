@@ -7,6 +7,7 @@ import Hero from "@/components/hero";
 import Features from "@/components/features";
 import HowItWillHelp from "@/components/HowsItWork";
 import About from "@/components/about";
+import Developer from "@/components/developer";
 
 export default function App() {
   // const router = useRouter();
@@ -44,6 +45,7 @@ export default function App() {
       <Features />
       <HowItWillHelp />
       <About />
+      <Developer />
     </div>
   );
 }
