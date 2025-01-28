@@ -24,7 +24,7 @@ const WEEKDAYS = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"];
 const Calendar = () => {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [calorieHistory, setCalorieHistory] = useState([]);
-  const [workoutHistory, setWorkoutHistory] = useState({});
+  const [workoutHistory, setWorkoutHistory] = useState([]);
   const [waterHistory, setWaterHistory] = useState([]);
 
   const getLocalDateString = (date) => {
@@ -44,9 +44,32 @@ const Calendar = () => {
         const unsubscribe = onSnapshot(userRef, (doc) => {
           if (doc.exists()) {
             const userData = doc.data();
-            setCalorieHistory(userData.calorieHistory || []);
-            setWorkoutHistory(userData.workoutHistory || {});
-            setWaterHistory(userData.waterHistory || []);
+            
+            // Process calorie history
+            const processedCalorieHistory = (userData.calorieHistory || []).map(entry => ({
+              ...entry,
+              date: entry.date instanceof Date ? entry.date : new Date(entry.date)
+            }));
+            
+            // Process workout history - ensure it's an object before converting
+            const workoutHistoryObj = userData.workoutHistory || {};
+            const processedWorkoutHistory = Object.entries(workoutHistoryObj).map(
+              ([date, data]) => ({
+                date: new Date(date),
+                isCompleted: data.isCompleted || false,
+                ...data
+              })
+            );
+            
+            // Process water history
+            const processedWaterHistory = (userData.waterHistory || []).map(entry => ({
+              ...entry,
+              date: entry.date instanceof Date ? entry.date : new Date(entry.date)
+            }));
+
+            setCalorieHistory(processedCalorieHistory);
+            setWorkoutHistory(processedWorkoutHistory);
+            setWaterHistory(processedWaterHistory);
           }
         });
 
@@ -81,7 +104,7 @@ const Calendar = () => {
     );
   };
 
-  const generateCalendarDays = useMemo(() => {
+  const generateCalendarDays = () => {
     const days = [];
     const today = new Date();
     const isCurrentMonth =
@@ -103,17 +126,17 @@ const Calendar = () => {
       );
 
       const historyEntry = calorieHistory.find(
-        (entry) => getLocalDateString(new Date(entry.date)) === currentDayDate
+        (entry) => getLocalDateString(entry.date) === currentDayDate
       );
 
-      const workoutEntry = workoutHistory[currentDayDate];
-      const workoutIncomplete =
-        workoutEntry &&
-        !workoutEntry.isCompleted &&
-        currentDayDate < currentDayString;
+      // Ensure workoutHistory is treated as an array
+      const workoutEntry = Array.isArray(workoutHistory) ? 
+        workoutHistory.find(entry => getLocalDateString(entry.date) === currentDayDate) : 
+        null;
+      const workoutIncomplete = workoutEntry && !workoutEntry.isCompleted;
 
       const waterEntry = waterHistory.find(
-        entry => getLocalDateString(new Date(entry.date)) === currentDayDate
+        entry => getLocalDateString(entry.date) === currentDayDate
       );
       const waterIncomplete = waterEntry && waterEntry.currentLevel < waterEntry.targetLevel;
 
@@ -172,7 +195,11 @@ const Calendar = () => {
           >
             {shouldShowStatus ? (
               <div className="space-y-1">
-                {workoutIncomplete && <div>Workout Incomplete</div>}
+                {workoutEntry && (
+                  <div>
+                    Workout: {workoutEntry.isCompleted ? "✓" : "✗"}
+                  </div>
+                )}
                 {historyEntry && (
                   <div>
                     Calories: {historyEntry.isTargetReached ? "✓" : "✗"}
@@ -195,7 +222,7 @@ const Calendar = () => {
     }
 
     return days;
-  }, [currentDate, daysInMonth, firstDay, calorieHistory, workoutHistory, waterHistory]);
+  };
 
   return (
     <div
@@ -237,7 +264,7 @@ const Calendar = () => {
 
       {/* Calendar grid */}
       <div className="calendar-grid grid grid-cols-7 gap-1">
-        {generateCalendarDays}
+        {generateCalendarDays()}
       </div>
 
       {/* Updated Legend */}
